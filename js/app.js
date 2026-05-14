@@ -21,12 +21,11 @@ const pageHome   = document.getElementById('page-home');
 const pageTyping = document.getElementById('page-typing');
 
 // ── タイピング状態 ──
-let currentLang   = 'python';
-let chars         = [];
-let pos           = 0;
-let typeablePos   = 0;    // タイプ済みの ASCII 文字数
-let typeableCount = 0;    // スニペット内の ASCII 文字総数
-let finished      = false;
+let currentLang = 'python';
+let chars       = [];
+let pos         = 0;
+let finished    = false;
+let isComposing = false;  // IME変換中フラグ
 
 // ── DOM参照 ──
 const codeWrap      = document.getElementById('codeWrap');
@@ -39,26 +38,54 @@ const nextBtn       = document.getElementById('nextBtn');
 const backBtn       = document.getElementById('backBtn');
 const currentLangEl = document.getElementById('currentLang');
 
-// ASCII 文字（コードポイント 127 以下）か判定する
-// 日本語・全角文字などは false になる
+// ── IME入力を受け取るための非表示input要素 ──
+// divにはIMEが使えないため、実際のinput要素で入力を受け取り画面外に隠す
+const hiddenInput = document.createElement('input');
+hiddenInput.setAttribute('autocomplete',   'off');
+hiddenInput.setAttribute('autocorrect',    'off');
+hiddenInput.setAttribute('autocapitalize', 'off');
+hiddenInput.setAttribute('spellcheck',     'false');
+hiddenInput.style.cssText =
+    'position:fixed;opacity:0;width:1px;height:1px;top:-9999px;left:-9999px;pointer-events:none;';
+document.body.appendChild(hiddenInput);
+
+// ASCII文字（コードポイント127以下）か判定する
 function isTypeable(ch) {
     return ch.codePointAt(0) <= 127;
 }
 
-// pos 以降の非 ASCII 文字（日本語など）を自動で done にして読み飛ばす
-// scroll=true のときは次のカーソル位置までスクロールする
-function skipNonTypeable(scroll) {
-    while (pos < chars.length && !isTypeable(chars[pos].ch)) {
-        chars[pos].span.classList.remove('cur', 'wait');
-        chars[pos].span.classList.add('done');
+// ── 1文字を正誤判定してカーソルを進める ──
+// 一致すれば done にして true を返す。不一致なら bad フラッシュして false を返す
+function processChar(ch) {
+    if (finished) return false;
+    const current = chars[pos];
+    if (!current) return false;
+
+    if (ch === current.ch) {
+        current.span.classList.remove('cur', 'bad', 'wait');
+        current.span.classList.add('done');
         pos++;
-    }
-    if (pos < chars.length) {
-        chars[pos].span.classList.remove('wait');
-        chars[pos].span.classList.add('cur');
-        if (scroll) {
-            chars[pos].span.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+
+        if (pos >= chars.length) {
+            finishTyping();
+        } else {
+            const next = chars[pos];
+            next.span.classList.remove('wait');
+            next.span.classList.add('cur');
+            next.span.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
+
+        syncProgress();
+        return true;
+    } else {
+        current.span.classList.add('bad');
+        setTimeout(() => {
+            if (!current.span.classList.contains('done')) {
+                current.span.classList.remove('bad');
+            }
+        }, 350);
+        syncProgress();
+        return false;
     }
 }
 
@@ -75,9 +102,9 @@ function goToTyping(lang) {
         pageHome.style.display   = 'none';
         pageTyping.style.display = 'block';
         void pageTyping.offsetHeight;
-        pageTyping.style.opacity      = '1';
+        pageTyping.style.opacity       = '1';
         pageTyping.style.pointerEvents = '';
-        codeWrap.focus();
+        hiddenInput.focus();
     }, 350);
 }
 
@@ -104,11 +131,9 @@ function pickSnippet() {
 // ── コードを文字単位のspanに分解して描画 ──
 function buildCode(snippet) {
     codeText.innerHTML = '';
-    chars         = [];
-    pos           = 0;
-    typeablePos   = 0;
-    typeableCount = 0;
-    finished      = false;
+    chars    = [];
+    pos      = 0;
+    finished = false;
     doneMsg.classList.remove('show');
     againBtn.classList.remove('show');
     nextBtn.classList.remove('show');
@@ -116,25 +141,23 @@ function buildCode(snippet) {
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
         const span = document.createElement('span');
-        span.classList.add('c', 'wait');
+        span.classList.add('c', i === 0 ? 'cur' : 'wait');
         if (ch === '\n') span.classList.add('nl');
         span.textContent = ch;
         chars.push({ span, ch });
         codeText.appendChild(span);
-        if (isTypeable(ch)) typeableCount++;
     }
 
-    // 先頭に日本語があれば自動スキップしてカーソルを最初の ASCII 文字に置く
-    skipNonTypeable(false);
     syncProgress();
     codeWrap.scrollTop = 0;
 }
 
-// ── 進捗バーとカウンターを更新（日本語を除いた文字数で計算）──
+// ── 進捗バーとカウンターを更新 ──
 function syncProgress() {
-    const pct = typeableCount ? (typeablePos / typeableCount * 100).toFixed(1) : 0;
+    const total = chars.length;
+    const pct   = total ? (pos / total * 100).toFixed(1) : 0;
     fill.style.width    = pct + '%';
-    counter.textContent = `${typeablePos} / ${typeableCount}`;
+    counter.textContent = `${pos} / ${total}`;
 }
 
 // ── 全入力完了 ──
@@ -148,31 +171,34 @@ function finishTyping() {
 // ── キー入力の処理 ──
 function onKey(e) {
     if (finished) return;
-    if (e.key === 'Tab' || e.key === ' ') e.preventDefault();
+
+    // IME変換中はすべてのキーを無視（IME自体が処理する）
+    if (e.isComposing || isComposing) return;
+
+    if (e.key === ' ')   e.preventDefault();
+    if (e.key === 'Tab') e.preventDefault();
 
     const current = chars[pos];
     if (!current) return;
 
-    // Backspace: 直前の ASCII 文字まで戻る
-    // 途中の日本語（自動スキップ済み）も一緒に wait に戻す
+    // Backspace: 1文字戻る
     if (e.key === 'Backspace') {
-        if (typeablePos === 0) return;
+        if (pos === 0) return;
         current.span.classList.remove('cur');
         current.span.classList.add('wait');
         pos--;
-        while (!isTypeable(chars[pos].ch)) {
-            chars[pos].span.classList.remove('done');
-            chars[pos].span.classList.add('wait');
-            pos--;
-        }
-        chars[pos].span.classList.remove('done', 'bad');
-        chars[pos].span.classList.add('cur');
-        typeablePos--;
+        const prev = chars[pos];
+        prev.span.classList.remove('done', 'bad');
+        prev.span.classList.add('cur');
         syncProgress();
         return;
     }
 
-    // 押されたキーを期待する文字と照合
+    // 次の文字が日本語（非ASCII）ならkeydownでは処理しない
+    // compositionendイベントで変換確定後に処理する
+    if (!isTypeable(current.ch)) return;
+
+    // ASCII文字・改行・タブを照合
     const expected = current.ch;
     let   pressed  = null;
 
@@ -182,30 +208,27 @@ function onKey(e) {
 
     if (pressed === null) return;
 
-    if (pressed === expected) {
-        current.span.classList.remove('cur', 'bad', 'wait');
-        current.span.classList.add('done');
-        pos++;
-        typeablePos++;
-
-        if (pos >= chars.length) {
-            finishTyping();
-        } else {
-            // 次が日本語なら自動スキップ
-            skipNonTypeable(true);
-            if (pos >= chars.length) finishTyping();
-        }
-    } else {
-        current.span.classList.add('bad');
-        setTimeout(() => {
-            if (!current.span.classList.contains('done')) {
-                current.span.classList.remove('bad');
-            }
-        }, 350);
-    }
-
-    syncProgress();
+    processChar(pressed);
 }
+
+// ── IME入力（日本語変換）の処理 ──
+hiddenInput.addEventListener('compositionstart', () => {
+    isComposing = true;
+});
+
+hiddenInput.addEventListener('compositionend', (e) => {
+    isComposing = false;
+    hiddenInput.value = '';  // 入力バッファをクリアして蓄積を防ぐ
+
+    if (!e.data) return;  // Escapeなどでキャンセルされた場合
+
+    // 変換確定したテキストを1文字ずつ処理する
+    // 不一致が出たらそこで停止する
+    for (const ch of [...e.data]) {
+        if (finished) break;
+        if (!processChar(ch)) break;
+    }
+});
 
 // ── イベント登録 ──
 
@@ -217,16 +240,16 @@ document.querySelector('.lang-grid').addEventListener('click', (e) => {
 
 backBtn.addEventListener('click', goToHome);
 
-againBtn.addEventListener('click', () => {
-    buildCode(pickSnippet());
-    codeWrap.focus();
-});
+againBtn.addEventListener('click', () => { buildCode(pickSnippet()); hiddenInput.focus(); });
+nextBtn.addEventListener('click',  () => { buildCode(pickSnippet()); hiddenInput.focus(); });
 
-nextBtn.addEventListener('click', () => {
-    buildCode(pickSnippet());
-    codeWrap.focus();
-});
+// コードエリアをクリック・フォーカス → hiddenInputに転送してIME入力を有効にする
+codeWrap.addEventListener('click',  () => hiddenInput.focus());
+codeWrap.addEventListener('focus',  () => hiddenInput.focus());
 
-codeWrap.addEventListener('focus',   () => codeWrap.classList.add('focused'));
-codeWrap.addEventListener('blur',    () => codeWrap.classList.remove('focused'));
-codeWrap.addEventListener('keydown', onKey);
+// hiddenInputのfocus状態でcodeWrapのUIを制御する
+hiddenInput.addEventListener('focus', () => codeWrap.classList.add('focused'));
+hiddenInput.addEventListener('blur',  () => codeWrap.classList.remove('focused'));
+
+// キー入力はhiddenInputで受け取る
+hiddenInput.addEventListener('keydown', onKey);
