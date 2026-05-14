@@ -25,7 +25,7 @@ let currentLang = 'python';
 let chars       = [];
 let pos         = 0;
 let finished    = false;
-let isComposing = false;  // IME変換中フラグ
+let isComposing = false;
 
 // ── DOM参照 ──
 const codeWrap      = document.getElementById('codeWrap');
@@ -39,15 +39,51 @@ const backBtn       = document.getElementById('backBtn');
 const currentLangEl = document.getElementById('currentLang');
 
 // ── IME入力を受け取るための非表示input要素 ──
-// divにはIMEが使えないため、実際のinput要素で入力を受け取り画面外に隠す
+// 画面下部に固定することでIMEの候補ウィンドウをコードに被らない位置に誘導する
 const hiddenInput = document.createElement('input');
 hiddenInput.setAttribute('autocomplete',   'off');
 hiddenInput.setAttribute('autocorrect',    'off');
 hiddenInput.setAttribute('autocapitalize', 'off');
 hiddenInput.setAttribute('spellcheck',     'false');
 hiddenInput.style.cssText =
-    'position:fixed;opacity:0;width:1px;height:1px;pointer-events:none;';
+    'position:fixed;bottom:12px;left:48px;opacity:0;width:1px;height:1px;pointer-events:none;';
 document.body.appendChild(hiddenInput);
+
+// ── 画面下部の入力トレイ（変換中テキスト・ミスタイプ表示）──
+// hiddenInputと同じ場所に置くことでIME候補ウィンドウがトレイの近くに出る
+const imeTray = document.createElement('div');
+imeTray.style.cssText =
+    'position:fixed;bottom:0;left:0;right:0;background:#0c0c0c;' +
+    'border-top:1px solid #181818;padding:10px 48px;display:none;' +
+    'align-items:center;gap:14px;z-index:200;font-family:inherit;';
+document.body.appendChild(imeTray);
+
+const trayLabel = document.createElement('span');
+trayLabel.style.cssText = 'color:#2a2a2a;font-size:10px;letter-spacing:0.15em;';
+trayLabel.textContent = '入力中';
+
+const trayText = document.createElement('span');
+trayText.style.cssText = 'font-size:13px;letter-spacing:0.05em;color:#666;';
+
+imeTray.appendChild(trayLabel);
+imeTray.appendChild(trayText);
+
+let trayTimer = null;
+
+// トレイを表示する（isError=true のとき赤色で表示し、600ms後に自動で消える）
+function showTray(text, isError) {
+    clearTimeout(trayTimer);
+    trayText.textContent = text;
+    trayText.style.color = isError ? '#7a3030' : '#666';
+    imeTray.style.display = 'flex';
+    if (isError) trayTimer = setTimeout(hideTray, 600);
+}
+
+function hideTray() {
+    clearTimeout(trayTimer);
+    imeTray.style.display = 'none';
+    trayText.textContent  = '';
+}
 
 // ASCII文字（コードポイント127以下）か判定する
 function isTypeable(ch) {
@@ -56,45 +92,11 @@ function isTypeable(ch) {
 
 // 全角英数記号を半角に正規化する
 // 全角 U+FF01〜U+FF5E は ASCII U+0021〜U+007E と 0xFEE0 だけずれている
-// 全角スペース U+3000 も半角スペースに変換する
 function normalize(ch) {
     const code = ch.codePointAt(0);
     if (code >= 0xFF01 && code <= 0xFF5E) return String.fromCodePoint(code - 0xFEE0);
     if (code === 0x3000) return ' ';
     return ch;
-}
-
-// hiddenInputをカーソル文字の真下に移動する
-// IMEの候補ウィンドウはinput要素の位置に追従するため、
-// これをすることでIMEウィンドウがコード上の正しい位置に出る
-function repositionInput() {
-    const current = chars[pos] ?? chars[chars.length - 1];
-    if (!current) return;
-    const rect = current.span.getBoundingClientRect();
-    hiddenInput.style.left = rect.left + 'px';
-    hiddenInput.style.top  = rect.bottom + 'px';
-}
-
-// ── 入力プレビュー（変換中テキスト・ミスタイプした文字の表示）──
-const inputPreview = document.createElement('div');
-inputPreview.style.cssText =
-    'position:fixed;background:#141414;border:1px solid #2a2a2a;color:#707070;' +
-    'font-size:12px;padding:1px 7px;border-radius:2px;pointer-events:none;' +
-    'display:none;z-index:100;letter-spacing:0.05em;white-space:pre;';
-document.body.appendChild(inputPreview);
-
-function showPreview(text) {
-    const cur = chars[pos];
-    if (!cur || !text) return;
-    const rect = cur.span.getBoundingClientRect();
-    inputPreview.textContent = text;
-    inputPreview.style.left    = rect.left + 'px';
-    inputPreview.style.top     = (rect.bottom + 4) + 'px';
-    inputPreview.style.display = 'block';
-}
-
-function hidePreview() {
-    inputPreview.style.display = 'none';
 }
 
 // ── 1文字を正誤判定してカーソルを進める ──
@@ -105,7 +107,6 @@ function processChar(ch) {
     if (!current) return false;
 
     if (normalize(ch) === normalize(current.ch)) {
-        hidePreview();
         current.span.classList.remove('cur', 'bad', 'wait');
         current.span.classList.add('done');
         pos++;
@@ -122,8 +123,7 @@ function processChar(ch) {
         syncProgress();
         return true;
     } else {
-        showPreview(ch);
-        setTimeout(hidePreview, 600);
+        showTray(ch, true);
         current.span.classList.add('bad');
         setTimeout(() => {
             if (!current.span.classList.contains('done')) {
@@ -156,6 +156,7 @@ function goToTyping(lang) {
 
 // ── ページ遷移：タイピング → ホーム ──
 function goToHome() {
+    hideTray();
     pageTyping.style.opacity      = '0';
     pageTyping.style.pointerEvents = 'none';
     setTimeout(() => {
@@ -180,11 +181,10 @@ function buildCode(snippet) {
     chars    = [];
     pos      = 0;
     finished = false;
+    hideTray();
     doneMsg.classList.remove('show');
     againBtn.classList.remove('show');
     nextBtn.classList.remove('show');
-
-    hidePreview();
 
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
@@ -206,12 +206,12 @@ function syncProgress() {
     const pct   = total ? (pos / total * 100).toFixed(1) : 0;
     fill.style.width    = pct + '%';
     counter.textContent = `${pos} / ${total}`;
-    repositionInput();
 }
 
 // ── 全入力完了 ──
 function finishTyping() {
     finished = true;
+    hideTray();
     doneMsg.classList.add('show');
     againBtn.classList.add('show');
     nextBtn.classList.add('show');
@@ -220,8 +220,6 @@ function finishTyping() {
 // ── キー入力の処理 ──
 function onKey(e) {
     if (finished) return;
-
-    // IME変換中はすべてのキーを無視（IME自体が処理する）
     if (e.isComposing || isComposing) return;
 
     if (e.key === ' ')   e.preventDefault();
@@ -230,14 +228,12 @@ function onKey(e) {
     const current = chars[pos];
     if (!current) return;
 
-    // Backspace: 正解済みの文字には戻れない（前進のみ）
+    // 正解済みの文字には戻れない
     if (e.key === 'Backspace') return;
 
-    // 次の文字が日本語（非ASCII）ならkeydownでは処理しない
-    // compositionendイベントで変換確定後に処理する
+    // 日本語（非ASCII）はcompositionendで変換確定後に処理する
     if (!isTypeable(current.ch)) return;
 
-    // ASCII文字・改行・タブを照合
     const expected = current.ch;
     let   pressed  = null;
 
@@ -255,20 +251,18 @@ hiddenInput.addEventListener('compositionstart', () => {
     isComposing = true;
 });
 
-// 変換中のテキストをリアルタイムでプレビュー表示する
+// 変換中のテキストをリアルタイムでトレイに表示する
 hiddenInput.addEventListener('compositionupdate', (e) => {
-    if (e.data) showPreview(e.data);
+    if (e.data) showTray(e.data, false);
 });
 
 hiddenInput.addEventListener('compositionend', (e) => {
     isComposing = false;
-    hidePreview();
-    hiddenInput.value = '';  // 入力バッファをクリアして蓄積を防ぐ
+    hideTray();
+    hiddenInput.value = '';
 
-    if (!e.data) return;  // Escapeなどでキャンセルされた場合
+    if (!e.data) return;
 
-    // 変換確定したテキストを1文字ずつ処理する
-    // 不一致が出たらそこで停止する
     for (const ch of [...e.data]) {
         if (finished) break;
         if (!processChar(ch)) break;
@@ -288,13 +282,10 @@ backBtn.addEventListener('click', goToHome);
 againBtn.addEventListener('click', () => { buildCode(pickSnippet()); hiddenInput.focus(); });
 nextBtn.addEventListener('click',  () => { buildCode(pickSnippet()); hiddenInput.focus(); });
 
-// コードエリアをクリック・フォーカス → hiddenInputに転送してIME入力を有効にする
 codeWrap.addEventListener('click',  () => hiddenInput.focus());
 codeWrap.addEventListener('focus',  () => hiddenInput.focus());
 
-// hiddenInputのfocus状態でcodeWrapのUIを制御する
 hiddenInput.addEventListener('focus', () => codeWrap.classList.add('focused'));
 hiddenInput.addEventListener('blur',  () => codeWrap.classList.remove('focused'));
 
-// キー入力はhiddenInputで受け取る
 hiddenInput.addEventListener('keydown', onKey);
