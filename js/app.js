@@ -46,12 +46,23 @@ hiddenInput.setAttribute('autocorrect',    'off');
 hiddenInput.setAttribute('autocapitalize', 'off');
 hiddenInput.setAttribute('spellcheck',     'false');
 hiddenInput.style.cssText =
-    'position:fixed;opacity:0;width:1px;height:1px;top:-9999px;left:-9999px;pointer-events:none;';
+    'position:fixed;opacity:0;width:1px;height:1px;pointer-events:none;';
 document.body.appendChild(hiddenInput);
 
 // ASCII文字（コードポイント127以下）か判定する
 function isTypeable(ch) {
     return ch.codePointAt(0) <= 127;
+}
+
+// hiddenInputをカーソル文字の真下に移動する
+// IMEの候補ウィンドウはinput要素の位置に追従するため、
+// これをすることでIMEウィンドウがコード上の正しい位置に出る
+function repositionInput() {
+    const current = chars[pos] ?? chars[chars.length - 1];
+    if (!current) return;
+    const rect = current.span.getBoundingClientRect();
+    hiddenInput.style.left = rect.left + 'px';
+    hiddenInput.style.top  = rect.bottom + 'px';
 }
 
 // ── 1文字を正誤判定してカーソルを進める ──
@@ -158,6 +169,7 @@ function syncProgress() {
     const pct   = total ? (pos / total * 100).toFixed(1) : 0;
     fill.style.width    = pct + '%';
     counter.textContent = `${pos} / ${total}`;
+    repositionInput();
 }
 
 // ── 全入力完了 ──
