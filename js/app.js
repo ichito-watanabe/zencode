@@ -75,6 +75,28 @@ function repositionInput() {
     hiddenInput.style.top  = rect.bottom + 'px';
 }
 
+// ── 入力プレビュー（変換中テキスト・ミスタイプした文字の表示）──
+const inputPreview = document.createElement('div');
+inputPreview.style.cssText =
+    'position:fixed;background:#141414;border:1px solid #2a2a2a;color:#707070;' +
+    'font-size:12px;padding:1px 7px;border-radius:2px;pointer-events:none;' +
+    'display:none;z-index:100;letter-spacing:0.05em;white-space:pre;';
+document.body.appendChild(inputPreview);
+
+function showPreview(text) {
+    const cur = chars[pos];
+    if (!cur || !text) return;
+    const rect = cur.span.getBoundingClientRect();
+    inputPreview.textContent = text;
+    inputPreview.style.left    = rect.left + 'px';
+    inputPreview.style.top     = (rect.bottom + 4) + 'px';
+    inputPreview.style.display = 'block';
+}
+
+function hidePreview() {
+    inputPreview.style.display = 'none';
+}
+
 // ── 1文字を正誤判定してカーソルを進める ──
 // 一致すれば done にして true を返す。不一致なら bad フラッシュして false を返す
 function processChar(ch) {
@@ -83,6 +105,7 @@ function processChar(ch) {
     if (!current) return false;
 
     if (normalize(ch) === normalize(current.ch)) {
+        hidePreview();
         current.span.classList.remove('cur', 'bad', 'wait');
         current.span.classList.add('done');
         pos++;
@@ -99,6 +122,8 @@ function processChar(ch) {
         syncProgress();
         return true;
     } else {
+        showPreview(ch);
+        setTimeout(hidePreview, 600);
         current.span.classList.add('bad');
         setTimeout(() => {
             if (!current.span.classList.contains('done')) {
@@ -159,6 +184,8 @@ function buildCode(snippet) {
     againBtn.classList.remove('show');
     nextBtn.classList.remove('show');
 
+    hidePreview();
+
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
         const span = document.createElement('span');
@@ -203,18 +230,8 @@ function onKey(e) {
     const current = chars[pos];
     if (!current) return;
 
-    // Backspace: 1文字戻る
-    if (e.key === 'Backspace') {
-        if (pos === 0) return;
-        current.span.classList.remove('cur');
-        current.span.classList.add('wait');
-        pos--;
-        const prev = chars[pos];
-        prev.span.classList.remove('done', 'bad');
-        prev.span.classList.add('cur');
-        syncProgress();
-        return;
-    }
+    // Backspace: 正解済みの文字には戻れない（前進のみ）
+    if (e.key === 'Backspace') return;
 
     // 次の文字が日本語（非ASCII）ならkeydownでは処理しない
     // compositionendイベントで変換確定後に処理する
@@ -238,8 +255,14 @@ hiddenInput.addEventListener('compositionstart', () => {
     isComposing = true;
 });
 
+// 変換中のテキストをリアルタイムでプレビュー表示する
+hiddenInput.addEventListener('compositionupdate', (e) => {
+    if (e.data) showPreview(e.data);
+});
+
 hiddenInput.addEventListener('compositionend', (e) => {
     isComposing = false;
+    hidePreview();
     hiddenInput.value = '';  // 入力バッファをクリアして蓄積を防ぐ
 
     if (!e.data) return;  // Escapeなどでキャンセルされた場合
