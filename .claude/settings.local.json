@@ -4,7 +4,9 @@
       "Bash(gh api *)",
       "Bash(git add *)",
       "Bash(git -c user.name=\"ichito-watanabe\" -c user.email=\"ichito0229w@gmail.com\" commit -m \"デザイン刷新・画面遷移・日本語コメント追加\")",
-      "Bash(git push *)"
+      "Bash(git push *)",
+      "Bash(git -c user.name=\"ichito-watanabe\" -c user.email=\"ichito0229w@gmail.com\" commit -m \"遷移バグ修正・選択画面の文字を明るく\")",
+      "Bash(git -c user.name=\"ichito-watanabe\" -c user.email=\"ichito0229w@gmail.com\" commit -m \"スニペット変数をvarに変更して他ファイルから参照できるよう修正\")"
     ]
   }
 }

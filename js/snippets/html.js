@@ -1,4 +1,4 @@
-const HTML = [
+var HTML = [
 
 `<!DOCTYPE html>
 <!-- DOCTYPE宣言: ブラウザにHTML5であることを伝える -->

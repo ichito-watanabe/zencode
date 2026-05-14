@@ -1,4 +1,4 @@
-const JAVASCRIPT = [
+var JAVASCRIPT = [
 
 `// ── 変数宣言 ──
 

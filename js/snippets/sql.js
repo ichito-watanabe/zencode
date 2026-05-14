@@ -1,4 +1,4 @@
-const SQL = [
+var SQL = [
 
 `-- ── テーブルの作成（CREATE TABLE）──
 -- テーブル: データを行と列で管理する入れ物

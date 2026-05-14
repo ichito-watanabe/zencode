@@ -1,4 +1,4 @@
-const PYTHON = [
+var PYTHON = [
 
 `# ── 変数とデータ型 ──
 

@@ -7,7 +7,7 @@ const SNIPPETS = {
     typescript: TYPESCRIPT,
     sql:        SQL,
     html:       HTML,
-    css:        CSS,
+    css:        CSS_SNIPPETS,
 };
 
 // 各言語の表示名と漢字ラベル

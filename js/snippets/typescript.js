@@ -1,4 +1,4 @@
-const TYPESCRIPT = [
+var TYPESCRIPT = [
 
 `// ── 型アノテーション（型注釈）──
 // TypeScript は JavaScript に型を追加した言語

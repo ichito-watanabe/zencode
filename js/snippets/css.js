@@ -1,4 +1,4 @@
-const CSS = [
+var CSS_SNIPPETS = [
 
 `/* セレクターの種類 */
 
