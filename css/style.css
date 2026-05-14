@@ -30,7 +30,7 @@ body {
 .home-subtitle {
     font-size:      11px;
     letter-spacing: 0.5em;
-    color:          #6b1a1a; /* 朱色 */
+    color:          #8b3030; /* 朱色 */
     margin-bottom:  28px;
     font-weight:    300;
 }
@@ -39,14 +39,14 @@ body {
     font-size:      30px;
     font-weight:    300;
     letter-spacing: 0.35em;
-    color:          #282828;
+    color:          #8a8a8a;
     margin-bottom:  10px;
 }
 
 .home-desc {
     font-size:      11px;
     letter-spacing: 0.3em;
-    color:          #1a1a1a;
+    color:          #4a4a4a;
     margin-bottom:  72px;
 }
 
@@ -61,8 +61,8 @@ body {
 
 .lang-card {
     background:     none;
-    border:         1px solid #141414;
-    color:          #2a2a2a;
+    border:         1px solid #242424;
+    color:          #707070;
     padding:        30px 16px;
     border-radius:  1px;
     cursor:         pointer;
@@ -75,9 +75,9 @@ body {
 }
 
 .lang-card:hover {
-    border-color: #2a2a2a;
-    background:   #0f0f0f;
-    color:        #4a4a4a;
+    border-color: #3a3a3a;
+    background:   #111;
+    color:        #b0b0b0;
 }
 
 .lang-en {
@@ -88,12 +88,12 @@ body {
 .lang-ja {
     font-size:      20px;
     letter-spacing: 0.2em;
-    color:          #1a1a1a;
+    color:          #5a5a5a;
     transition:     color 0.2s;
 }
 
 .lang-card:hover .lang-ja {
-    color: #6b1a1a; /* ホバー時に朱色で漢字が浮かぶ */
+    color: #8b3030; /* ホバー時に朱色で漢字が浮かぶ */
 }
 
 /* ── ヘッダー（タイピング画面） ── */

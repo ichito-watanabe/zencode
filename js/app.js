@@ -53,17 +53,20 @@ function goToTyping(lang) {
     buildCode(pickSnippet());
 
     // フェードアウト → 画面切り替え → フェードイン
-    pageHome.style.opacity      = '0';
+    pageHome.style.opacity       = '0';
     pageHome.style.pointerEvents = 'none';
 
     setTimeout(() => {
-        pageHome.style.display       = 'none';
-        pageTyping.style.display     = 'block';
+        pageHome.style.display  = 'none';
+        pageTyping.style.display = 'block';
+
+        // offsetHeight を読むことでブラウザに強制リフローさせる
+        // これがないと display:block 直後の opacity 変更がトランジションせず一瞬で切り替わる
+        void pageTyping.offsetHeight;
+
+        pageTyping.style.opacity      = '1';
         pageTyping.style.pointerEvents = '';
-        requestAnimationFrame(() => {
-            pageTyping.style.opacity = '1';
-            codeWrap.focus();
-        });
+        codeWrap.focus();
     }, 350);
 }
 
@@ -73,12 +76,13 @@ function goToHome() {
     pageTyping.style.pointerEvents = 'none';
 
     setTimeout(() => {
-        pageTyping.style.display    = 'none';
-        pageHome.style.display      = 'block';
+        pageTyping.style.display = 'none';
+        pageHome.style.display   = 'block';
+
+        void pageHome.offsetHeight;
+
+        pageHome.style.opacity      = '1';
         pageHome.style.pointerEvents = '';
-        requestAnimationFrame(() => {
-            pageHome.style.opacity = '1';
-        });
     }, 350);
 }
 
