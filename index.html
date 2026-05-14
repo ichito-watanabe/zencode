@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zencode</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">zencode</div>
+    <div class="langs" id="langs">
+        <button class="lang active" data-lang="python">Python</button>
+        <button class="lang" data-lang="javascript">JavaScript</button>
+        <button class="lang" data-lang="typescript">TypeScript</button>
+        <button class="lang" data-lang="sql">SQL</button>
+        <button class="lang" data-lang="html">HTML</button>
+        <button class="lang" data-lang="css">CSS</button>
+    </div>
+</header>
+
+<main class="main">
+    <div class="code-wrap" id="codeWrap" tabindex="0">
+        <div class="code-text" id="codeText"></div>
+        <div class="hint">click to start typing</div>
+    </div>
+
+    <div class="footer">
+        <div class="track"><div class="fill" id="fill"></div></div>
+        <div class="counter" id="counter">0 / 0</div>
+    </div>
+
+    <div class="done-msg" id="doneMsg">Done. Good work.</div>
+
+    <div class="actions">
+        <button class="action-btn" id="againBtn">— try again —</button>
+        <button class="action-btn" id="nextBtn">— next snippet —</button>
+    </div>
+</main>
+
+<!-- Snippet data: each file exports a global array (PYTHON, JAVASCRIPT, etc.) -->
+<script src="js/snippets/python.js"></script>
+<script src="js/snippets/javascript.js"></script>
+<script src="js/snippets/typescript.js"></script>
+<script src="js/snippets/sql.js"></script>
+<script src="js/snippets/html.js"></script>
+<script src="js/snippets/css.js"></script>
+
+<!-- App logic: loaded last so all snippet globals are available -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
