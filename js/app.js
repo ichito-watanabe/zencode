@@ -111,6 +111,15 @@ function processChar(ch) {
         current.span.classList.add('done');
         pos++;
 
+        // 改行の直後に続く先頭スペース（インデント）を自動スキップ
+        if (current.ch === '\n') {
+            while (pos < chars.length && chars[pos].ch === ' ') {
+                chars[pos].span.classList.remove('cur', 'wait');
+                chars[pos].span.classList.add('done');
+                pos++;
+            }
+        }
+
         if (pos >= chars.length) {
             finishTyping();
         } else {
