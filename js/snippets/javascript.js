@@ -1,6 +1,6 @@
-var JAVASCRIPT = [
+﻿var JAVASCRIPT = [
 
-`// ── 変数宣言 ──
+`// -- 変数宣言 --
 
 // const: 宣言後に再代入できない定数。基本的にこちらを使う
 const userName = "Ichito";
@@ -23,7 +23,7 @@ console.log(\`名前   : \${profile.name}\`);
 console.log(\`年齢   : \${profile.age}\`);
 console.log(\`有効   : \${profile.active}\`);`,
 
-`// ── 関数の書き方 ──
+`// -- 関数の書き方 --
 
 // 関数宣言: function キーワードを使う
 // ホイスティング（巻き上げ）により宣言前に呼び出すことができる
@@ -51,7 +51,7 @@ const greetDefault = (name, greeting = "こんにちは") =>
 console.log(greetDefault("Ichito"));            // こんにちは、Ichitoさん！
 console.log(greetDefault("Ichito", "やあ"));   // やあ、Ichitoさん！`,
 
-`// ── 配列メソッド ──
+`// -- 配列メソッド --
 
 const numbers = [1, 2, 3, 4, 5, 6];
 
@@ -78,7 +78,7 @@ numbers.forEach((n, index) => {
     console.log(\`[\${index}] \${n}\`);
 });`,
 
-`// ── オブジェクトと分割代入 ──
+`// -- オブジェクトと分割代入 --
 
 const user = {
     name:    "Ichito",
@@ -112,7 +112,7 @@ console.log(city);              // 東京
 const updated = { ...user, age: 23 };
 console.log(updated.age);       // 23`,
 
-`// ── 条件分岐: if / else と switch ──
+`// -- 条件分岐: if / else と switch --
 
 const score = 85;
 
@@ -137,7 +137,7 @@ const day = "月曜日";
 switch (day) {
     case "土曜日":
     case "日曜日":
-        // 2つのcaseが同じブロックを共有 → どちらでも同じ処理
+        // 2つのcaseが同じブロックを共有 -> どちらでも同じ処理
         console.log("週末");
         break;  // break がないと次のcase に処理が流れてしまう（フォールスルー）
     default:
@@ -145,7 +145,7 @@ switch (day) {
         console.log("平日");
 }`,
 
-`// ── ループ ──
+`// -- ループ --
 
 const fruits = ["りんご", "バナナ", "さくらんぼ"];
 
@@ -172,10 +172,10 @@ while (count < 3) {
     count++;  // ++ は 1 加算する（count = count + 1 と同じ）
 }`,
 
-`// ── Promise と async/await ──
+`// -- Promise と async/await --
 
 // Promise: 非同期処理の「将来の値」を表すオブジェクト
-// 状態: pending（待機中）→ fulfilled（成功）または rejected（失敗）
+// 状態: pending（待機中）-> fulfilled（成功）または rejected（失敗）
 function fetchUser(id) {
     return new Promise((resolve, reject) => {
         // setTimeout: 指定ミリ秒後にコールバックを実行する（擬似的な遅延）
@@ -206,7 +206,7 @@ async function main() {
 
 main();`,
 
-`// ── クラス ──
+`// -- クラス --
 
 // class: オブジェクトを生成するための設計図
 class Animal {
@@ -246,7 +246,7 @@ console.log(dog.speak());           // ハチはワンと鳴く！
 dog.learnTrick("お手");
 console.log(dog.tricks);            // ["お手"]`,
 
-`// ── エラーハンドリング ──
+`// -- エラーハンドリング --
 
 // throw: 意図的にエラーを発生させる
 // エラーの種類: Error（汎用）, TypeError（型が違う）, RangeError（範囲外）など
@@ -267,16 +267,16 @@ function divide(a, b) {
 // finally: エラーの有無にかかわらず必ず実行される
 try {
     console.log(divide(10, 2));    // 5
-    console.log(divide(10, 0));    // → RangeError が throw される
+    console.log(divide(10, 0));    // -> RangeError が throw される
 } catch (error) {
     // error.name: エラーの種類名
     // error.message: エラーに渡したメッセージ
     console.error(\`\${error.name}: \${error.message}\`);
 } finally {
-    console.log("── 処理完了 ──");  // 必ず実行される
+    console.log("-- 処理完了 --");  // 必ず実行される
 }`,
 
-`// ── モジュール（ESモジュール形式）──
+`// -- モジュール（ESモジュール形式）--
 // この構文はブラウザで type="module" または
 // Node.js で "type": "module" を指定した場合に使える
 
@@ -300,7 +300,7 @@ console.log(multiply(3, 4));  // 12
 console.log(square2(5));      // 25
 
 // 名前付きexport と デフォルトexport の違い:
-// 名前付き: export const foo = ...   → import { foo } from "..."
-// デフォルト: export default ...     → import foo    from "..."`
+// 名前付き: export const foo = ...   -> import { foo } from "..."
+// デフォルト: export default ...     -> import foo    from "..."`
 
 ];

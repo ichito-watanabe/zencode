@@ -1,6 +1,6 @@
 var SQL = [
 
-`-- ── テーブルの作成（CREATE TABLE）──
+`-- -- テーブルの作成（CREATE TABLE）--
 -- テーブル: データを行と列で管理する入れ物
 -- 各列には 列名・データ型・制約 を定義する
 
@@ -22,7 +22,7 @@ CREATE TABLE users (
     -- datetime('now'): SQLiteで現在日時を取得する関数
 );`,
 
-`-- ── データの挿入（INSERT）──
+`-- -- データの挿入（INSERT）--
 
 -- INSERT INTO テーブル名 (列名, ...) VALUES (値, ...);
 -- 列リストと値の順番は必ず一致させる
@@ -52,7 +52,7 @@ SELECT
     created_at AS 登録日
 FROM users;`,
 
-`-- ── 条件で絞り込む（WHERE）──
+`-- -- 条件で絞り込む（WHERE）--
 -- WHERE句が True の行だけを結果として返す
 
 -- 年齢が20以上のユーザーを取得
@@ -84,7 +84,7 @@ WHERE username IN ('ichito', 'alice', 'bob');
 SELECT * FROM users WHERE age IS NULL;
 SELECT * FROM users WHERE age IS NOT NULL;`,
 
-`-- ── 並び替えと件数制限（ORDER BY / LIMIT）──
+`-- -- 並び替えと件数制限（ORDER BY / LIMIT）--
 
 -- ORDER BY: 結果を並び替える
 -- ASC（昇順）: 小さい値から大きい値へ（デフォルト）
@@ -106,7 +106,7 @@ SELECT * FROM users ORDER BY id LIMIT 10 OFFSET 10;
 SELECT COUNT(*) AS 総ユーザー数 FROM users;
 SELECT COUNT(*) AS 成人数 FROM users WHERE age >= 18;`,
 
-`-- ── 集計関数（Aggregate Functions）──
+`-- -- 集計関数（Aggregate Functions）--
 -- 複数の行にまたがって計算を行う関数
 
 -- COUNT(*): 行数を数える
@@ -139,7 +139,7 @@ SELECT
     MAX(amount)   AS 最高値
 FROM orders;`,
 
-`-- ── グループ化（GROUP BY / HAVING）──
+`-- -- グループ化（GROUP BY / HAVING）--
 
 -- GROUP BY: 指定した列の値ごとに行をグループにまとめ、集計する
 -- 各グループが結果の1行になる
@@ -166,7 +166,7 @@ GROUP BY user_id
 HAVING COUNT(*) >= 2   -- グループの注文数が2以上のグループだけ残す
 ORDER BY 合計金額 DESC;`,
 
-`-- ── テーブルの結合（JOIN）──
+`-- -- テーブルの結合（JOIN）--
 -- 複数のテーブルを関連するキーで結合して横につなげる
 
 -- INNER JOIN: 両方のテーブルで一致する行だけを返す
@@ -190,7 +190,7 @@ LEFT JOIN orders AS o
 GROUP BY u.id, u.username
 ORDER BY 注文数 DESC;`,
 
-`-- ── データの更新と削除（UPDATE / DELETE）──
+`-- -- データの更新と削除（UPDATE / DELETE）--
 
 -- UPDATE: 既存の行の値を変更する
 -- WHERE を必ず付ける！付け忘れると全行が変更される
@@ -218,7 +218,7 @@ SELECT id, username, email, age FROM users WHERE id = 1;
 DELETE FROM orders WHERE amount < 5000;
 DELETE FROM users  WHERE username = 'charlie';`,
 
-`-- ── サブクエリ ──
+`-- -- サブクエリ --
 -- SELECT の中にさらに SELECT を入れ子にできる
 -- 内側のクエリが先に実行され、その結果が外側のクエリで使われる
 
@@ -251,7 +251,7 @@ FROM (
 JOIN users ON users.id = spending.user_id
 ORDER BY 合計金額 DESC;`,
 
-`-- ── インデックスとビュー ──
+`-- -- インデックスとビュー --
 
 -- CREATE INDEX: 検索を高速化するための索引を作る
 -- WHERE / JOIN / ORDER BY に使う列に作ると効果的

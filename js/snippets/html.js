@@ -1,4 +1,4 @@
-var HTML = [
+﻿var HTML = [
 
 `<!DOCTYPE html>
 <!-- DOCTYPE宣言: ブラウザにHTML5であることを伝える -->
@@ -366,7 +366,7 @@ var HTML = [
   <!-- スクリーンリーダーは「×ボタン」ではなく「ダイアログを閉じるボタン」と読む -->
 
   <!-- aria-hidden: 装飾的な要素をスクリーンリーダーから隠す -->
-  <span aria-hidden="true">★★★★☆</span>
+  <span aria-hidden="true">****-</span>
   <span>5点中4点</span>
   <!-- 読み上げは「5点中4点」のみ。記号の読み上げを避けられる -->
 

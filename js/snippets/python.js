@@ -1,6 +1,6 @@
-var PYTHON = [
+﻿var PYTHON = [
 
-`# ── 変数とデータ型 ──
+`# -- 変数とデータ型 --
 
 # str型（文字列）: テキストデータ。ダブルまたはシングルクォートで囲む
 user_name = "Ichito"
@@ -30,7 +30,7 @@ print(f"年齢   : {profile['age']}")
 print(f"身長   : {profile['height']} m")
 print(f"学生   : {is_student}")`,
 
-`# ── 関数の定義と呼び出し ──
+`# -- 関数の定義と呼び出し --
 
 # def: 関数を定義するキーワード
 # 引数に型ヒント（: str, : int）を書くと可読性が上がる（強制ではない）
@@ -41,7 +41,7 @@ def greet(name: str, age: int) -> str:
 
 # 関数を呼び出す: 引数を定義と同じ順番で渡す
 message = greet("Ichito", 22)
-print(message)  # → こんにちは、Ichitoさん。22歳ですね。
+print(message)  # -> こんにちは、Ichitoさん。22歳ですね。
 
 # デフォルト引数: 呼び出し時に省略した場合に使われる値
 # greeting="こんにちは" を省略すると自動的に"こんにちは"が使われる
@@ -49,12 +49,12 @@ def greet_with_default(name: str, greeting: str = "こんにちは") -> str:
     return f"{greeting}、{name}さん！"
 
 # greetingを省略して呼び出す
-print(greet_with_default("Ichito"))            # → こんにちは、Ichitoさん！
+print(greet_with_default("Ichito"))            # -> こんにちは、Ichitoさん！
 
 # greetingを指定して呼び出す
-print(greet_with_default("Ichito", "やあ"))   # → やあ、Ichitoさん！`,
+print(greet_with_default("Ichito", "やあ"))   # -> やあ、Ichitoさん！`,
 
-`# ── 条件分岐：if / elif / else ──
+`# -- 条件分岐:if / elif / else --
 
 # 比較演算子: >= は「以上」、== は「等しい」、!= は「等しくない」
 score = 85
@@ -75,14 +75,14 @@ elif score >= 70:
 else:
     grade = "F"
 
-print(f"スコア: {score} → 評価: {grade}")  # → スコア: 85 → 評価: B
+print(f"スコア: {score} -> 評価: {grade}")  # -> スコア: 85 -> 評価: B
 
 # 三項演算子: 1行でif/elseを書く短縮形
 # 「条件が True の値」 if 条件 else 「条件が False の値」
 status = "合格" if score >= 60 else "不合格"
-print(f"判定: {status}")  # → 判定: 合格`,
+print(f"判定: {status}")  # -> 判定: 合格`,
 
-`# ── for ループ ──
+`# -- for ループ --
 
 # for: シーケンス（リスト・タプル・文字列など）の各要素を順に処理する
 fruits = ["りんご", "バナナ", "さくらんぼ"]
@@ -92,22 +92,22 @@ for fruit in fruits:
     print(f"果物: {fruit}")
 
 # range(n): 0 から n-1 までの整数を順番に生成する
-print("── カウント ──")
+print("-- カウント --")
 for i in range(5):
     print(f"  i = {i}")  # 0, 1, 2, 3, 4
 
 # range(start, stop, step): 開始・終了・ステップを指定できる
-# 1から10未満を2刻みで → 1, 3, 5, 7, 9
-print("── 奇数 ──")
+# 1から10未満を2刻みで -> 1, 3, 5, 7, 9
+print("-- 奇数 --")
 for n in range(1, 10, 2):
     print(f"  {n}")
 
 # enumerate: インデックスと値を同時に取り出せる
-print("── インデックス付き ──")
+print("-- インデックス付き --")
 for index, fruit in enumerate(fruits):
     print(f"  [{index}] {fruit}")`,
 
-`# ── while ループ / break / continue ──
+`# -- while ループ / break / continue --
 
 # while: 条件が True の間ループを繰り返す
 counter = 0
@@ -122,7 +122,7 @@ while counter < 5:
     counter += 1
 
 # break: ループを即座に終了する
-print("── 検索 ──")
+print("-- 検索 --")
 numbers = [4, 7, 1, 9, 3]
 target  = 9
 
@@ -132,33 +132,33 @@ for num in numbers:
         break  # 見つかったらそれ以上ループしない
     print(f"  {num} は違います")`,
 
-`# ── リスト操作 ──
+`# -- リスト操作 --
 
 # list: 順序付きで変更可能（ミュータブル）なコレクション
 items = ["a", "b", "c"]
 
 # append(): 末尾に1つ要素を追加する
-items.append("d")           # → ["a", "b", "c", "d"]
+items.append("d")           # -> ["a", "b", "c", "d"]
 
 # insert(位置, 値): 指定した位置に要素を挿入する
-items.insert(1, "z")        # → ["a", "z", "b", "c", "d"]
+items.insert(1, "z")        # -> ["a", "z", "b", "c", "d"]
 
 # remove(値): 最初に見つかった一致する要素を削除する
-items.remove("z")           # → ["a", "b", "c", "d"]
+items.remove("z")           # -> ["a", "b", "c", "d"]
 
 # pop(): 末尾の要素を取り出して削除する（戻り値: 取り出した値）
 last = items.pop()          # last = "d", items = ["a", "b", "c"]
 
 # len(): 要素の数を返す
-print(f"件数: {len(items)}")  # → 件数: 3
+print(f"件数: {len(items)}")  # -> 件数: 3
 
 # リスト内包表記: 新しいリストを1行で生成できる
 # [式 for 変数 in イテラブル if 条件]
 numbers = [1, 2, 3, 4, 5, 6]
 evens   = [n for n in numbers if n % 2 == 0]  # 偶数だけ抽出
-print(f"偶数: {evens}")  # → 偶数: [2, 4, 6]`,
+print(f"偶数: {evens}")  # -> 偶数: [2, 4, 6]`,
 
-`# ── 辞書（dict）操作 ──
+`# -- 辞書（dict）操作 --
 
 # dict: キーと値のペアを格納するデータ構造
 # キーは一意（重複不可）、値は何でもよい
@@ -169,11 +169,11 @@ user = {
 }
 
 # キーで値にアクセスする（ブラケット記法）
-print(user["name"])  # → Ichito
+print(user["name"])  # -> Ichito
 
 # get(キー, デフォルト値): キーが存在しない場合にデフォルト値を返す
 # user["email"] だとキーなしでエラーになるが get() なら安全
-print(user.get("email", "未登録"))  # → 未登録
+print(user.get("email", "未登録"))  # -> 未登録
 
 # 新しいキーを追加または既存の値を更新する
 user["email"] = "ichito@example.com"
@@ -189,7 +189,7 @@ for key, value in user.items():
 if "name" in user:
     print("nameキーが存在します")`,
 
-`# ── 例外処理（エラーハンドリング） ──
+`# -- 例外処理（エラーハンドリング） --
 
 # raise: 意図的にエラーを発生させる
 # ValueError: 値が不正なときに使う例外クラス
@@ -197,15 +197,15 @@ def divide(a: float, b: float) -> float:
     if b == 0:
         # b が 0 なら割り算できないのでエラーを送出する
         raise ValueError("0で割ることはできません")
-    return a / b  # a ÷ b の結果を返す
+    return a / b  # a / b の結果を返す
 
 # try: エラーが起きるかもしれない処理を書く
 try:
     result = divide(10, 2)
-    print(f"10 ÷ 2 = {result}")  # → 10 ÷ 2 = 5.0
+    print(f"10 / 2 = {result}")  # -> 10 / 2 = 5.0
 
-    result = divide(10, 0)  # ← ここで ValueError が発生する
-    print(result)           # ← この行は実行されない
+    result = divide(10, 0)  # <- ここで ValueError が発生する
+    print(result)           # <- この行は実行されない
 
 # except エラークラス as 変数: 発生したエラーを受け取って処理する
 except ValueError as e:
@@ -214,9 +214,9 @@ except ValueError as e:
 
 # finally: エラーの有無にかかわらず必ず実行される
 finally:
-    print("── 処理終了 ──")`,
+    print("-- 処理終了 --")`,
 
-`# ── クラスとオブジェクト ──
+`# -- クラスとオブジェクト --
 
 # class: オブジェクトの設計図を定義するキーワード
 class Dog:
@@ -229,7 +229,7 @@ class Dog:
     # メソッド: クラスに属する関数。selfを第1引数に受け取る
     def bark(self) -> str:
         # 自身のname属性を使って文字列を返す
-        return f"{self.name}：ワン！"
+        return f"{self.name}:ワン！"
 
     # __str__: print()に渡されたとき呼ばれる特殊メソッド
     def __str__(self) -> str:
@@ -240,11 +240,11 @@ class Dog:
 dog1 = Dog("ハチ", "柴犬")
 dog2 = Dog("クロ", "ラブラドール")
 
-print(dog1)         # → Dog(name=ハチ, breed=柴犬)
-print(dog1.bark())  # → ハチ：ワン！
-print(dog2.bark())  # → クロ：ワン！`,
+print(dog1)         # -> Dog(name=ハチ, breed=柴犬)
+print(dog1.bark())  # -> ハチ:ワン！
+print(dog2.bark())  # -> クロ:ワン！`,
 
-`# ── ファイルの読み書き ──
+`# -- ファイルの読み書き --
 
 # open(パス, モード): ファイルを開く組み込み関数
 # モード一覧:
@@ -255,18 +255,18 @@ print(dog2.bark())  # → クロ：ワン！`,
 
 file_path = "sample.txt"
 
-# ── 書き込み ──
+# -- 書き込み --
 with open(file_path, "w", encoding="utf-8") as f:
     f.write("1行目: こんにちは\\n")  # \\n は改行文字
     f.write("2行目: 世界\\n")
     f.write("3行目: 完了\\n")
 
-# ── 全体を一括で読み込む ──
+# -- 全体を一括で読み込む --
 with open(file_path, "r", encoding="utf-8") as f:
     content = f.read()   # ファイル全体を1つの文字列として読み込む
     print(content)
 
-# ── 1行ずつ読み込む ──
+# -- 1行ずつ読み込む --
 with open(file_path, "r", encoding="utf-8") as f:
     for line_number, line in enumerate(f, start=1):
         # strip(): 行末の改行や空白を取り除く
