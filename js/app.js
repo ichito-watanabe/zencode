@@ -134,8 +134,8 @@ function syncProgress() {
 function onKey(e) {
     if (finished) return;
 
-    // Tabキーはブラウザのフォーカス移動ではなく入力として扱う
-    if (e.key === 'Tab') e.preventDefault();
+    // Tab・Space はブラウザのデフォルト動作（フォーカス移動・スクロール）を止める
+    if (e.key === 'Tab' || e.key === ' ') e.preventDefault();
 
     const current = chars[pos];
     if (!current) return;
