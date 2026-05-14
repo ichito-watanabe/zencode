@@ -1,6 +1,3 @@
-// 各スニペットファイル（python.js等）が先に読み込まれ、
-// PYTHON / JAVASCRIPT / TYPESCRIPT / SQL / HTML / CSS というグローバル配列が存在する前提
-
 const SNIPPETS = {
     python:     PYTHON,
     javascript: JAVASCRIPT,
@@ -10,7 +7,6 @@ const SNIPPETS = {
     css:        CSS_SNIPPETS,
 };
 
-// 各言語の表示名と漢字ラベル
 const LANG_META = {
     python:     { en: 'Python',     ja: '基礎' },
     javascript: { en: 'JavaScript', ja: '動作' },
@@ -25,10 +21,12 @@ const pageHome   = document.getElementById('page-home');
 const pageTyping = document.getElementById('page-typing');
 
 // ── タイピング状態 ──
-let currentLang = 'python';
-let chars       = [];   // { span, ch } の配列（コード全文字分）
-let pos         = 0;    // 現在のカーソル位置（文字インデックス）
-let finished    = false;
+let currentLang   = 'python';
+let chars         = [];
+let pos           = 0;
+let typeablePos   = 0;    // タイプ済みの ASCII 文字数
+let typeableCount = 0;    // スニペット内の ASCII 文字総数
+let finished      = false;
 
 // ── DOM参照 ──
 const codeWrap      = document.getElementById('codeWrap');
@@ -41,29 +39,42 @@ const nextBtn       = document.getElementById('nextBtn');
 const backBtn       = document.getElementById('backBtn');
 const currentLangEl = document.getElementById('currentLang');
 
+// ASCII 文字（コードポイント 127 以下）か判定する
+// 日本語・全角文字などは false になる
+function isTypeable(ch) {
+    return ch.codePointAt(0) <= 127;
+}
+
+// pos 以降の非 ASCII 文字（日本語など）を自動で done にして読み飛ばす
+// scroll=true のときは次のカーソル位置までスクロールする
+function skipNonTypeable(scroll) {
+    while (pos < chars.length && !isTypeable(chars[pos].ch)) {
+        chars[pos].span.classList.remove('cur', 'wait');
+        chars[pos].span.classList.add('done');
+        pos++;
+    }
+    if (pos < chars.length) {
+        chars[pos].span.classList.remove('wait');
+        chars[pos].span.classList.add('cur');
+        if (scroll) {
+            chars[pos].span.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        }
+    }
+}
+
 // ── ページ遷移：ホーム → タイピング ──
 function goToTyping(lang) {
     currentLang = lang;
     const meta  = LANG_META[lang];
-
-    // ヘッダーの言語表示を更新
     currentLangEl.innerHTML =
         `${meta.en}<span class="lang-kanji">${meta.ja}</span>`;
-
     buildCode(pickSnippet());
-
-    // フェードアウト → 画面切り替え → フェードイン
     pageHome.style.opacity       = '0';
     pageHome.style.pointerEvents = 'none';
-
     setTimeout(() => {
-        pageHome.style.display  = 'none';
+        pageHome.style.display   = 'none';
         pageTyping.style.display = 'block';
-
-        // offsetHeight を読むことでブラウザに強制リフローさせる
-        // これがないと display:block 直後の opacity 変更がトランジションせず一瞬で切り替わる
         void pageTyping.offsetHeight;
-
         pageTyping.style.opacity      = '1';
         pageTyping.style.pointerEvents = '';
         codeWrap.focus();
@@ -74,13 +85,10 @@ function goToTyping(lang) {
 function goToHome() {
     pageTyping.style.opacity      = '0';
     pageTyping.style.pointerEvents = 'none';
-
     setTimeout(() => {
         pageTyping.style.display = 'none';
         pageHome.style.display   = 'block';
-
         void pageHome.offsetHeight;
-
         pageHome.style.opacity      = '1';
         pageHome.style.pointerEvents = '';
     }, 350);
@@ -96,9 +104,11 @@ function pickSnippet() {
 // ── コードを文字単位のspanに分解して描画 ──
 function buildCode(snippet) {
     codeText.innerHTML = '';
-    chars    = [];
-    pos      = 0;
-    finished = false;
+    chars         = [];
+    pos           = 0;
+    typeablePos   = 0;
+    typeableCount = 0;
+    finished      = false;
     doneMsg.classList.remove('show');
     againBtn.classList.remove('show');
     nextBtn.classList.remove('show');
@@ -106,49 +116,58 @@ function buildCode(snippet) {
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
         const span = document.createElement('span');
-
-        // 最初の文字だけカーソル状態（cur）、それ以外は未入力（wait）
-        span.classList.add('c', i === 0 ? 'cur' : 'wait');
-
-        // 改行文字には特別なクラスを付与（↵の擬似要素表示に使う）
+        span.classList.add('c', 'wait');
         if (ch === '\n') span.classList.add('nl');
-
         span.textContent = ch;
         chars.push({ span, ch });
         codeText.appendChild(span);
+        if (isTypeable(ch)) typeableCount++;
     }
 
+    // 先頭に日本語があれば自動スキップしてカーソルを最初の ASCII 文字に置く
+    skipNonTypeable(false);
     syncProgress();
     codeWrap.scrollTop = 0;
 }
 
-// ── 進捗バーとカウンターを更新 ──
+// ── 進捗バーとカウンターを更新（日本語を除いた文字数で計算）──
 function syncProgress() {
-    const total = chars.length;
-    const pct   = total ? (pos / total * 100).toFixed(1) : 0;
+    const pct = typeableCount ? (typeablePos / typeableCount * 100).toFixed(1) : 0;
     fill.style.width    = pct + '%';
-    counter.textContent = `${pos} / ${total}`;
+    counter.textContent = `${typeablePos} / ${typeableCount}`;
+}
+
+// ── 全入力完了 ──
+function finishTyping() {
+    finished = true;
+    doneMsg.classList.add('show');
+    againBtn.classList.add('show');
+    nextBtn.classList.add('show');
 }
 
 // ── キー入力の処理 ──
 function onKey(e) {
     if (finished) return;
-
-    // Tab・Space はブラウザのデフォルト動作（フォーカス移動・スクロール）を止める
     if (e.key === 'Tab' || e.key === ' ') e.preventDefault();
 
     const current = chars[pos];
     if (!current) return;
 
-    // Backspace: 1文字戻る
+    // Backspace: 直前の ASCII 文字まで戻る
+    // 途中の日本語（自動スキップ済み）も一緒に wait に戻す
     if (e.key === 'Backspace') {
-        if (pos === 0) return;
+        if (typeablePos === 0) return;
         current.span.classList.remove('cur');
         current.span.classList.add('wait');
         pos--;
-        const prev = chars[pos];
-        prev.span.classList.remove('done', 'bad');
-        prev.span.classList.add('cur');
+        while (!isTypeable(chars[pos].ch)) {
+            chars[pos].span.classList.remove('done');
+            chars[pos].span.classList.add('wait');
+            pos--;
+        }
+        chars[pos].span.classList.remove('done', 'bad');
+        chars[pos].span.classList.add('cur');
+        typeablePos--;
         syncProgress();
         return;
     }
@@ -161,29 +180,22 @@ function onKey(e) {
     else if (expected === '\t' && e.key === 'Tab')   pressed = '\t';
     else if (e.key.length === 1)                     pressed = e.key;
 
-    // 修飾キーや矢印キーなどは無視
     if (pressed === null) return;
 
     if (pressed === expected) {
-        // 正解：入力済み（done）に変えて次へ進む
         current.span.classList.remove('cur', 'bad', 'wait');
         current.span.classList.add('done');
         pos++;
+        typeablePos++;
 
         if (pos >= chars.length) {
-            // 全文字入力完了
-            finished = true;
-            doneMsg.classList.add('show');
-            againBtn.classList.add('show');
-            nextBtn.classList.add('show');
+            finishTyping();
         } else {
-            const next = chars[pos];
-            next.span.classList.remove('wait');
-            next.span.classList.add('cur');
-            next.span.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            // 次が日本語なら自動スキップ
+            skipNonTypeable(true);
+            if (pos >= chars.length) finishTyping();
         }
     } else {
-        // 不正解：一時的に赤く光らせて、350ms後に戻す（位置は変わらない）
         current.span.classList.add('bad');
         setTimeout(() => {
             if (!current.span.classList.contains('done')) {
@@ -197,29 +209,24 @@ function onKey(e) {
 
 // ── イベント登録 ──
 
-// 言語カードをクリック → タイピング画面へ遷移
 document.querySelector('.lang-grid').addEventListener('click', (e) => {
     const card = e.target.closest('.lang-card[data-lang]');
     if (!card) return;
     goToTyping(card.dataset.lang);
 });
 
-// 戻るボタン → ホーム画面へ遷移
 backBtn.addEventListener('click', goToHome);
 
-// また打つ：同言語でランダムに再抽選
 againBtn.addEventListener('click', () => {
     buildCode(pickSnippet());
     codeWrap.focus();
 });
 
-// 次のコード：同言語でランダムに別のコードを選ぶ
 nextBtn.addEventListener('click', () => {
     buildCode(pickSnippet());
     codeWrap.focus();
 });
 
-// フォーカス状態を管理（コードを薄くするエフェクト用）
 codeWrap.addEventListener('focus',   () => codeWrap.classList.add('focused'));
 codeWrap.addEventListener('blur',    () => codeWrap.classList.remove('focused'));
 codeWrap.addEventListener('keydown', onKey);
