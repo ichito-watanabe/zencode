@@ -18,7 +18,7 @@ const profile = {
     active: true,      // キー: active、値: 真偽値
 };
 
-// テンプレートリテラル: バッククォートで囲み${}で変数を埋め込む
+// テンプレートリテラル: バッククォートで囲み\${}で変数を埋め込む
 console.log(\`名前   : \${profile.name}\`);
 console.log(\`年齢   : \${profile.age}\`);
 console.log(\`有効   : \${profile.active}\`);`,
