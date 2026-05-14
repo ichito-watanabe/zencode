@@ -189,6 +189,213 @@ CREATE VIEW user_order_summary AS
 
 SELECT * FROM user_order_summary ORDER BY 合計金額 DESC;
 
-DROP VIEW IF EXISTS user_order_summary;`
+DROP VIEW IF EXISTS user_order_summary;`,
+
+`-- トランザクション
+
+BEGIN TRANSACTION;
+
+INSERT INTO users (username, email, age)
+VALUES ('dave', 'dave@example.com', 28);
+
+UPDATE orders
+SET amount = amount * 0.9
+WHERE user_id = 1;
+
+COMMIT;
+
+BEGIN TRANSACTION;
+
+DELETE FROM users WHERE username = 'dave';
+
+ROLLBACK;
+
+SELECT * FROM users ORDER BY id;`,
+
+`-- 外部キー制約
+
+PRAGMA foreign_keys = ON;
+
+CREATE TABLE categories (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL UNIQUE
+);
+
+CREATE TABLE products (
+    id          INTEGER PRIMARY KEY AUTOINCREMENT,
+    name        TEXT    NOT NULL,
+    price       REAL    NOT NULL,
+    category_id INTEGER NOT NULL,
+    FOREIGN KEY (category_id) REFERENCES categories(id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+);
+
+INSERT INTO categories (name) VALUES ('電子機器'), ('書籍');
+
+INSERT INTO products (name, price, category_id)
+VALUES ('キーボード', 8000, 1), ('マウス', 3000, 1);
+
+SELECT p.name, p.price, c.name AS カテゴリ
+FROM products p
+JOIN categories c ON p.category_id = c.id;`,
+
+`-- CASE式
+
+SELECT
+    username,
+    age,
+    CASE
+        WHEN age < 20 THEN '未成年'
+        WHEN age < 30 THEN '20代'
+        WHEN age < 40 THEN '30代'
+        ELSE '40代以上'
+    END AS 年代
+FROM users
+ORDER BY age;
+
+SELECT
+    product,
+    amount,
+    CASE
+        WHEN amount >= 10000 THEN '高額'
+        WHEN amount >= 5000  THEN '中額'
+        ELSE '低額'
+    END AS 価格帯
+FROM orders
+ORDER BY amount DESC;`,
+
+`-- WITH句（CTE）
+
+WITH aged_users AS (
+    SELECT *
+    FROM users
+    WHERE age >= 20
+),
+high_spenders AS (
+    SELECT user_id, SUM(amount) AS total
+    FROM orders
+    GROUP BY user_id
+    HAVING SUM(amount) >= 5000
+)
+SELECT
+    u.username,
+    h.total
+FROM aged_users u
+JOIN high_spenders h ON u.id = h.user_id
+ORDER BY h.total DESC;
+
+WITH RECURSIVE counter(n) AS (
+    SELECT 1
+    UNION ALL
+    SELECT n + 1 FROM counter WHERE n < 5
+)
+SELECT n FROM counter;`,
+
+`-- ウィンドウ関数
+
+SELECT
+    username,
+    age,
+    ROW_NUMBER() OVER (ORDER BY age DESC)  AS 順位,
+    RANK()       OVER (ORDER BY age DESC)  AS 同率順位,
+    AVG(age)     OVER ()                   AS 平均年齢
+FROM users;
+
+SELECT
+    user_id,
+    product,
+    amount,
+    SUM(amount) OVER (PARTITION BY user_id)   AS ユーザー合計,
+    ROUND(
+        amount * 100.0
+        / SUM(amount) OVER (PARTITION BY user_id),
+        1
+    )                                         AS 割合
+FROM orders
+ORDER BY user_id, amount DESC;`,
+
+`-- UPSERT
+
+CREATE TABLE settings (
+    user_id INTEGER NOT NULL,
+    key     TEXT    NOT NULL,
+    value   TEXT    NOT NULL,
+    PRIMARY KEY (user_id, key)
+);
+
+INSERT INTO settings (user_id, key, value)
+VALUES (1, 'theme', 'dark')
+ON CONFLICT (user_id, key)
+DO UPDATE SET value = excluded.value;
+
+INSERT OR IGNORE INTO settings (user_id, key, value)
+VALUES (1, 'lang', 'python');
+
+INSERT OR REPLACE INTO settings (user_id, key, value)
+VALUES (1, 'theme', 'light');
+
+SELECT * FROM settings;`,
+
+`-- 日付操作
+
+SELECT
+    username,
+    created_at,
+    date(created_at)                         AS 日付のみ,
+    strftime('%Y年%m月%d日', created_at)     AS 日本語表記,
+    CAST(
+        julianday('now') - julianday(created_at)
+        AS INTEGER
+    )                                        AS 経過日数
+FROM users;
+
+SELECT
+    date('now')             AS 今日,
+    date('now', '+7 days')  AS 1週間後,
+    date('now', '-1 month') AS 1ヶ月前,
+    strftime('%Y', 'now')   AS 今年,
+    strftime('%m', 'now')   AS 今月;`,
+
+`-- 文字列操作
+
+SELECT
+    username,
+    upper(username)                          AS 大文字,
+    length(username)                         AS 文字数,
+    substr(email, 1, instr(email, '@') - 1) AS メールユーザー名
+FROM users;
+
+SELECT
+    trim('  hello  ')       AS トリム,
+    ltrim('  hello  ')      AS 左トリム,
+    rtrim('  hello  ')      AS 右トリム,
+    printf('%05d', 42)      AS ゼロ埋め,
+    printf('%.2f', 3.14159) AS 小数点以下2桁,
+    replace('hello world', 'world', 'SQL') AS 置換;`,
+
+`-- 複数テーブル設計（多対多）
+
+CREATE TABLE tags (
+    id   INTEGER PRIMARY KEY AUTOINCREMENT,
+    name TEXT    NOT NULL UNIQUE
+);
+
+CREATE TABLE post_tags (
+    post_id INTEGER NOT NULL,
+    tag_id  INTEGER NOT NULL,
+    PRIMARY KEY (post_id, tag_id),
+    FOREIGN KEY (tag_id) REFERENCES tags(id)
+);
+
+INSERT INTO tags (name) VALUES ('Python'), ('SQL'), ('JavaScript');
+
+SELECT
+    o.product,
+    GROUP_CONCAT(t.name, ', ') AS タグ
+FROM orders o
+LEFT JOIN post_tags pt ON o.id = pt.post_id
+LEFT JOIN tags      t  ON pt.tag_id = t.id
+GROUP BY o.id;`
 
 ];
