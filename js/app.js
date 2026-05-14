@@ -39,18 +39,18 @@ const backBtn       = document.getElementById('backBtn');
 const currentLangEl = document.getElementById('currentLang');
 
 // ── IME入力を受け取るための非表示input要素 ──
-// 画面下部に固定することでIMEの候補ウィンドウをコードに被らない位置に誘導する
+// トレイの上端（bottom:38px）に置くことで、IME候補ウィンドウが
+// トレイよりも上（コード側）に出てトレイのテキストに被らなくなる
 const hiddenInput = document.createElement('input');
 hiddenInput.setAttribute('autocomplete',   'off');
 hiddenInput.setAttribute('autocorrect',    'off');
 hiddenInput.setAttribute('autocapitalize', 'off');
 hiddenInput.setAttribute('spellcheck',     'false');
 hiddenInput.style.cssText =
-    'position:fixed;bottom:12px;left:48px;opacity:0;width:1px;height:1px;pointer-events:none;';
+    'position:fixed;bottom:38px;left:48px;opacity:0;width:1px;height:1px;pointer-events:none;';
 document.body.appendChild(hiddenInput);
 
 // ── 画面下部の入力トレイ（変換中テキスト・ミスタイプ表示）──
-// hiddenInputと同じ場所に置くことでIME候補ウィンドウがトレイの近くに出る
 const imeTray = document.createElement('div');
 imeTray.style.cssText =
     'position:fixed;bottom:0;left:0;right:0;background:#0c0c0c;' +
