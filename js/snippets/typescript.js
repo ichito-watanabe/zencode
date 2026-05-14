@@ -1,123 +1,125 @@
 const TYPESCRIPT = [
 
-`// -- Type annotations --
-// TypeScript adds types on top of JavaScript
-// Syntax: variableName: Type = value
+`// ── 型アノテーション（型注釈）──
+// TypeScript は JavaScript に型を追加した言語
+// 変数名: 型 = 値 という形式で型を明示できる
 
-const userName: string = "Ichito";  // only strings allowed
-let age: number = 22;               // only numbers allowed
-let isStudent: boolean = true;      // only true / false
+const userName: string = "Ichito";  // string型（文字列）のみ代入できる
+let age: number = 22;               // number型（数値）のみ代入できる
+let isStudent: boolean = true;      // boolean型（true/false）のみ代入できる
 
-// Array type: Type[]  or  Array<Type>
+// 配列型: 型[] または Array<型>
 const hobbies: string[] = ["coding", "reading", "music"];
-const scores: number[]  = [90, 85, 78];
+const scores:  number[] = [90, 85, 78];
 
-// Tuple: fixed-length array where each position has a known type
+// タプル型: 固定長の配列。各要素の型が決まっている
 const point: [number, number] = [10, 20];
 
-// Union type: the variable can hold one of several types
+// ユニオン型: 複数の型のどれかを受け付ける（|で区切る）
 let id: number | string = 42;
-id = "user_001";  // also valid because of the union
+id = "user_001";  // stringでも代入できる
 
-// any: disables type checking (use sparingly)
+// any型: 型チェックを無効にする（使用は最小限に）
 let anything: any = "hello";
-anything = 99;  // no error, but loses type safety
+anything = 99;  // 何でも代入できるがエラーを見逃す危険がある
 
 console.log(userName, age, hobbies);`,
 
-`// -- Interfaces --
-// interface: describes the shape an object must have
-// TypeScript checks at compile time that the shape matches
+`// ── インターフェース ──
+// interface: オブジェクトが持つべきプロパティの形（型）を定義する
+// コンパイル時に形が合っているか検証される
 
 interface User {
-    id:     number;   // required field
-    name:   string;   // required field
-    email?: string;   // optional field (? means it may be absent)
+    id:     number;   // 必須プロパティ: 省略不可
+    name:   string;   // 必須プロパティ
+    email?: string;   // 任意プロパティ: ?を付けると省略可能
 }
 
-// This object satisfies the User interface
+// User インターフェースを満たすオブジェクト
 const user: User = {
     id:   1,
     name: "Ichito",
-    // email is omitted — allowed because it is optional
+    // email は任意なので省略してもエラーにならない
 };
 
-// TypeScript will error if a required field is missing or wrong type
-// const bad: User = { id: "x", name: 1 };  // ERROR
-
+// 引数と戻り値に型を指定した関数
+// void: 戻り値が何もないことを明示する型
 function showUser(u: User): void {
-    // void: the function returns nothing
     console.log(\`[\${u.id}] \${u.name}\`);
+
+    // email は string | undefined なので存在確認してから使う
     if (u.email) {
-        // Inside this block TypeScript knows email is string, not undefined
-        console.log(\`Email: \${u.email}\`);
+        // このブロック内では TypeScript が email を string と推論する
+        console.log(\`メール: \${u.email}\`);
     }
 }
 
 showUser(user);`,
 
-`// -- Type aliases & Union types --
+`// ── 型エイリアスとユニオン型 ──
 
-// type alias: give a name to any type expression
+// type: 型に名前を付ける（インターフェースと似ているが任意の型に使える）
 type ID = number | string;
 
-type Status = "active" | "inactive" | "banned";  // string literal union
+// リテラルユニオン型: 特定の文字列値だけを許可する
+type Status = "active" | "inactive" | "banned";
 
 type Point = {
     x: number;
     y: number;
 };
 
-// Intersection type (&): combine two types into one
+// インターセクション型（&）: 2つの型を合成して新しい型を作る
 type Timestamped = {
     createdAt: Date;
     updatedAt: Date;
 };
 
-type UserRecord = User & Timestamped;
-// UserRecord must have all fields from both User and Timestamped
-
-// Usage
-const status: Status = "active";
-// status = "deleted";  // ERROR: not in the union
-
-const origin: Point = { x: 0, y: 0 };
-
-function move(p: Point, dx: number, dy: number): Point {
-    // Returns a new Point object (does not mutate the original)
-    return { x: p.x + dx, y: p.y + dy };
-}
-
-console.log(move(origin, 3, 4));  // { x: 3, y: 4 }
-
+// UserRecord は User と Timestamped 両方のフィールドを持つ
 interface User {
     id:   number;
     name: string;
-}`,
+}
+type UserRecord = User & Timestamped;
 
-`// -- Generics --
-// Generics let you write code that works with any type
-// <T> is a type parameter — T is replaced with a real type at use time
+// 使用例
+const status: Status = "active";
+// status = "deleted";  // エラー: ユニオンにない値は代入できない
 
-// Generic function: works with number[], string[], etc.
+const origin: Point = { x: 0, y: 0 };
+
+// 引数と戻り値の型を明示した関数
+function move(p: Point, dx: number, dy: number): Point {
+    // 元のオブジェクトを変更せず新しい Point を返す
+    return { x: p.x + dx, y: p.y + dy };
+}
+
+console.log(move(origin, 3, 4));  // { x: 3, y: 4 }`,
+
+`// ── ジェネリクス（総称型）──
+// ジェネリクス: 型をパラメータとして受け取ることで汎用的なコードを書く
+// <T>: 型パラメータ。実際に使うときに具体的な型に置き換えられる
+
+// number[] にも string[] にも使えるジェネリック関数
 function getFirst<T>(arr: T[]): T | undefined {
-    // T[] means "array of T"
-    // Returns T (the element) or undefined if array is empty
+    // T[]: 「T型の配列」という意味
+    // T | undefined: T型またはundefinedを返す
     return arr.length > 0 ? arr[0] : undefined;
 }
 
-console.log(getFirst([1, 2, 3]));        // 1   (T inferred as number)
-console.log(getFirst(["a", "b", "c"])); // "a" (T inferred as string)
+// 呼び出すと TypeScript が T を自動推論する
+console.log(getFirst([1, 2, 3]));        // T は number に推論される → 1
+console.log(getFirst(["a", "b", "c"])); // T は string に推論される → "a"
 console.log(getFirst([]));               // undefined
 
-// Generic interface
+// ジェネリックなインターフェース
 interface ApiResponse<T> {
-    data:    T;       // T is the payload type; changes per endpoint
+    data:    T;       // T はエンドポイントによって変わる
     status:  number;
     message: string;
 }
 
-// Use the generic with a concrete type
+// 具体的な型を指定してジェネリックを使う
 const response: ApiResponse<string[]> = {
     data:    ["item1", "item2"],
     status:  200,
@@ -127,18 +129,18 @@ const response: ApiResponse<string[]> = {
 console.log(response.data);    // ["item1", "item2"]
 console.log(response.status);  // 200`,
 
-`// -- Classes with TypeScript --
+`// ── クラスとアクセス修飾子 ──
 
-// Access modifiers control visibility:
-//   public    : accessible from anywhere (default)
-//   private   : accessible only inside this class
-//   protected : accessible inside this class and subclasses
-//   readonly  : can be set in constructor, not changed after
+// アクセス修飾子: プロパティやメソッドの公開範囲を制限する
+//   public    : どこからでもアクセス可（デフォルト）
+//   private   : クラス内からのみアクセス可
+//   protected : クラス内とサブクラスからアクセス可
+//   readonly  : コンストラクタ以外では変更不可
 
 class BankAccount {
-    readonly id:        number;
-    private  balance:   number;
-    public   owner:     string;
+    readonly id:      number;  // 作成後は変更できない
+    private  balance: number;  // このクラス内からしか操作できない
+    public   owner:   string;  // どこからでもアクセス可
 
     constructor(id: number, owner: string, initialBalance: number) {
         this.id      = id;
@@ -146,18 +148,20 @@ class BankAccount {
         this.balance = initialBalance;
     }
 
-    // Getter: accessed like a property (no parentheses)
+    // getter: プロパティのように読み取れる（括弧不要）
     get currentBalance(): number {
         return this.balance;
     }
 
+    // deposit: 入金処理
     deposit(amount: number): void {
-        if (amount <= 0) throw new RangeError("Amount must be positive");
+        if (amount <= 0) throw new RangeError("金額は正の数でなければなりません");
         this.balance += amount;
     }
 
+    // withdraw: 出金処理
     withdraw(amount: number): void {
-        if (amount > this.balance) throw new RangeError("Insufficient funds");
+        if (amount > this.balance) throw new RangeError("残高不足です");
         this.balance -= amount;
     }
 }
@@ -167,10 +171,10 @@ account.deposit(500);
 account.withdraw(200);
 console.log(account.currentBalance);  // 1300`,
 
-`// -- Enums --
-// enum: a set of named constants
-// Numeric enum: values are 0, 1, 2, ... by default
+`// ── enum（列挙型）──
+// enum: 関連する定数をひとまとめに命名できる型
 
+// 数値enum: 値は 0, 1, 2, ... と自動的に割り当てられる
 enum Direction {
     Up,     // 0
     Down,   // 1
@@ -178,63 +182,66 @@ enum Direction {
     Right,  // 3
 }
 
-// String enum: each member has an explicit string value
+// 文字列enum: 各メンバーに明示的な文字列を割り当てる
 enum Color {
     Red   = "RED",
     Green = "GREEN",
     Blue  = "BLUE",
 }
 
+// switch と組み合わせてすべてのケースを網羅できる
 function move(direction: Direction): void {
     switch (direction) {
-        case Direction.Up:    console.log("Moving up");    break;
-        case Direction.Down:  console.log("Moving down");  break;
-        case Direction.Left:  console.log("Moving left");  break;
-        case Direction.Right: console.log("Moving right"); break;
+        case Direction.Up:    console.log("上に移動");  break;
+        case Direction.Down:  console.log("下に移動");  break;
+        case Direction.Left:  console.log("左に移動");  break;
+        case Direction.Right: console.log("右に移動"); break;
     }
 }
 
-move(Direction.Up);    // Moving up
-move(Direction.Right); // Moving right
+move(Direction.Up);    // 上に移動
+move(Direction.Right); // 右に移動
 
 const favorite: Color = Color.Blue;
 console.log(favorite);  // "BLUE"`,
 
-`// -- Type narrowing --
-// TypeScript uses control flow to narrow a broad type to a specific one
+`// ── 型の絞り込み（ナローイング）──
+// TypeScript は制御フローを解析して型を自動的に絞り込む
 
-// typeof narrowing: works for primitive types
+// typeof によるナローイング: プリミティブ型に使う
 function printLength(value: string | number): void {
     if (typeof value === "string") {
-        // Inside this block TypeScript knows value is string
-        console.log(\`String length: \${value.length}\`);
+        // このブロック内では value が string と確定している
+        console.log(\`文字数: \${value.length}\`);
     } else {
-        // Here TypeScript knows value is number
-        console.log(\`Number: \${value.toFixed(2)}\`);
+        // ここでは value が number と確定している
+        console.log(\`数値: \${value.toFixed(2)}\`);
     }
 }
 
-// instanceof narrowing: works for class instances
-class Cat  { meow()  { return "Meow!";  } }
-class Dog2 { bark()  { return "Woof!";  } }
+// instanceof によるナローイング: クラスのインスタンスに使う
+class Cat  { meow() { return "ニャー！"; } }
+class Dog2 { bark() { return "ワン！";   } }
 
 function makeSound(animal: Cat | Dog2): string {
     if (animal instanceof Cat) {
-        return animal.meow();   // TypeScript knows it is Cat here
+        // このブロック内では animal が Cat と確定している
+        return animal.meow();
     }
-    return animal.bark();       // TypeScript knows it is Dog2 here
+    // ここでは animal が Dog2 と確定している
+    return animal.bark();
 }
 
-printLength("hello");  // String length: 5
-printLength(3.14159);  // Number: 3.14
+printLength("こんにちは");  // 文字数: 5
+printLength(3.14159);       // 数値: 3.14
 
 const c = new Cat();
 const d = new Dog2();
-console.log(makeSound(c));  // Meow!
-console.log(makeSound(d));  // Woof!`,
+console.log(makeSound(c));  // ニャー！
+console.log(makeSound(d));  // ワン！`,
 
-`// -- Utility types --
-// TypeScript ships with built-in generic types that transform other types
+`// ── ユーティリティ型 ──
+// TypeScript に組み込みのジェネリック型で、既存の型を変換できる
 
 interface Product {
     id:          number;
@@ -243,47 +250,49 @@ interface Product {
     description: string;
 }
 
-// Partial<T>: makes every field optional
-// Useful for update payloads where you only send changed fields
+// Partial<T>: すべてのフィールドを任意（optional）にする
+// 更新リクエストなど「一部だけ変更」したいときに便利
 type ProductUpdate = Partial<Product>;
-const patch: ProductUpdate = { price: 999 };  // only price changed
+const patch: ProductUpdate = { price: 999 };  // priceだけ変更
 
-// Required<T>: opposite of Partial — every field is required
+// Required<T>: Partial の逆。すべてのフィールドを必須にする
 type FullProduct = Required<Product>;
 
-// Pick<T, Keys>: select only the listed fields
+// Pick<T, Keys>: 指定したフィールドだけを抜き出して新しい型を作る
 type ProductCard = Pick<Product, "id" | "name" | "price">;
-const card: ProductCard = { id: 1, name: "Keyboard", price: 8000 };
+const card: ProductCard = { id: 1, name: "キーボード", price: 8000 };
 
-// Omit<T, Keys>: exclude the listed fields
+// Omit<T, Keys>: 指定したフィールドを除いた新しい型を作る
 type ProductWithoutId = Omit<Product, "id">;
 
-// Readonly<T>: prevents any field from being reassigned
+// Readonly<T>: すべてのフィールドを読み取り専用にする
 type FrozenProduct = Readonly<Product>;
-const frozen: FrozenProduct = { id: 1, name: "Mouse", price: 3000, description: "Wireless" };
-// frozen.price = 2000;  // ERROR: cannot assign to readonly property
+const frozen: FrozenProduct = {
+    id: 1, name: "マウス", price: 3000, description: "ワイヤレス"
+};
+// frozen.price = 2000;  // エラー: 読み取り専用プロパティに代入できない
 
 console.log(card);`,
 
-`// -- Async / Await with types --
+`// ── async/await と型 ──
 
-// Promise<T>: a Promise that resolves with type T
+// Promise<T>: T型の値で解決するPromise
 interface GithubUser {
-    login:      string;
+    login:        string;
     public_repos: number;
 }
 
-// The return type annotation tells callers what to expect
+// 戻り値の型を明示することで呼び出し元が安全に使える
 async function fetchGithubUser(username: string): Promise<GithubUser> {
-    const url = \`https://api.github.com/users/\${username}\`;
-    const response = await fetch(url);  // fetch returns Promise<Response>
+    const url      = \`https://api.github.com/users/\${username}\`;
+    const response = await fetch(url);  // fetch はPromise<Response>を返す
 
     if (!response.ok) {
-        // Throw an error so the caller's catch block handles it
+        // 失敗した場合はエラーを投げてcatchブロックで処理する
         throw new Error(\`HTTP \${response.status}\`);
     }
 
-    // response.json() returns Promise<any>; we cast it to GithubUser
+    // response.json() は Promise<any> を返すが、型アサーションで型を付ける
     const data: GithubUser = await response.json();
     return data;
 }
@@ -291,35 +300,36 @@ async function fetchGithubUser(username: string): Promise<GithubUser> {
 async function main(): Promise<void> {
     try {
         const user = await fetchGithubUser("ichito-watanabe");
-        console.log(\`Login: \${user.login}\`);
-        console.log(\`Repos: \${user.public_repos}\`);
+        console.log(\`ログイン名: \${user.login}\`);
+        console.log(\`リポジトリ数: \${user.public_repos}\`);
     } catch (error) {
+        // instanceof で型を絞り込んでから message にアクセスする
         if (error instanceof Error) {
-            console.error(\`Failed: \${error.message}\`);
+            console.error(\`取得失敗: \${error.message}\`);
         }
     }
 }
 
 main();`,
 
-`// -- Decorators (experimental) --
-// Decorators add metadata or behavior to classes and methods
-// Enable with: "experimentalDecorators": true in tsconfig.json
+`// ── デコレーター（実験的機能）──
+// デコレーターを使うには tsconfig.json に
+// "experimentalDecorators": true を設定する必要がある
 
-// A simple logging decorator for methods
+// メソッドデコレーター: 関数を引数として受け取り、別の関数を返す
 function log(
-    target: object,
+    target:      object,
     propertyKey: string,
-    descriptor: PropertyDescriptor
+    descriptor:  PropertyDescriptor
 ): PropertyDescriptor {
-    // Save the original method so we can call it
+    // 元のメソッドを保存する
     const original = descriptor.value as (...args: unknown[]) => unknown;
 
-    // Replace the method with our wrapper
+    // 元のメソッドをラッパー関数で置き換える
     descriptor.value = function (...args: unknown[]) {
-        console.log(\`Calling \${propertyKey} with\`, args);
+        console.log(\`\${propertyKey}を呼び出し: 引数=\`, args);
         const result = original.apply(this, args);
-        console.log(\`\${propertyKey} returned\`, result);
+        console.log(\`\${propertyKey}の戻り値=\`, result);
         return result;
     };
 
@@ -327,7 +337,7 @@ function log(
 }
 
 class Calculator {
-    @log  // applies the log decorator to this method
+    @log  // このメソッドに log デコレーターを適用する
     add(a: number, b: number): number {
         return a + b;
     }
@@ -335,7 +345,7 @@ class Calculator {
 
 const calc = new Calculator();
 calc.add(3, 4);
-// Calling add with [3, 4]
-// add returned 7`
+// → addを呼び出し: 引数= [3, 4]
+// → addの戻り値= 7`
 
 ];

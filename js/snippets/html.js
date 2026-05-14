@@ -1,141 +1,142 @@
 const HTML = [
 
 `<!DOCTYPE html>
-<!-- DOCTYPE tells the browser this is an HTML5 document -->
-<!-- Without it, browsers may render in "quirks mode" -->
+<!-- DOCTYPE宣言: ブラウザにHTML5であることを伝える -->
+<!-- これがないとブラウザが「互換モード」で動作し、レイアウトがずれる -->
 
-<html lang="en">
-<!-- html: the root element that wraps the entire page -->
-<!-- lang="en" tells search engines and screen readers the language -->
+<html lang="ja">
+<!-- html: ページ全体を包む最上位の要素（ルート要素）-->
+<!-- lang="ja": スクリーンリーダーや検索エンジンに言語を伝える -->
 
 <head>
-  <!-- head: contains metadata — nothing here is shown on screen -->
+  <!-- head: メタデータを書く場所。画面には表示されない -->
 
   <meta charset="UTF-8">
-  <!-- charset UTF-8 supports almost every character in the world -->
+  <!-- charset: 文字コードを指定する。UTF-8はほぼすべての文字に対応 -->
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <!-- viewport: prevents mobile browsers from zooming out by default -->
+  <!-- viewport: モバイルブラウザが自動でズームアウトするのを防ぐ -->
+  <!-- initial-scale=1.0: 初期表示を100%（等倍）にする -->
 
-  <title>My First Page</title>
-  <!-- title: shown on the browser tab and in search results -->
+  <title>最初のページ</title>
+  <!-- title: ブラウザのタブと検索結果に表示されるテキスト -->
 
   <link rel="stylesheet" href="style.css">
-  <!-- link: connects an external CSS file to this page -->
-  <!-- rel="stylesheet" says what kind of resource it is -->
+  <!-- link: 外部CSSファイルを読み込む -->
+  <!-- rel="stylesheet": リソースの種類（スタイルシート）を指定 -->
 </head>
 
 <body>
-  <!-- body: everything visible on the page goes here -->
+  <!-- body: 画面に表示されるすべてのコンテンツをここに書く -->
 
-  <h1>Hello, World!</h1>
-  <!-- h1: the most important heading; use only once per page -->
+  <h1>こんにちは、世界！</h1>
+  <!-- h1: ページの大見出し。1ページに1回だけ使う -->
 
-  <p>Welcome to my first webpage.</p>
-  <!-- p: a paragraph of text -->
+  <p>最初のウェブページへようこそ。</p>
+  <!-- p: 段落（パラグラフ）。テキストをまとまりとして表示する -->
 </body>
 </html>`,
 
-`<!-- Headings & Text elements -->
+`<!-- 見出しとテキスト要素 -->
 <body>
 
-  <!-- h1 through h6: headings in descending importance -->
-  <h1>Page Title — most important</h1>
-  <h2>Section Heading</h2>
-  <h3>Subsection Heading</h3>
+  <!-- h1〜h6: 重要度の順に見出しを付ける（h1が最重要）-->
+  <h1>ページタイトル（h1・最重要）</h1>
+  <h2>セクション見出し（h2）</h2>
+  <h3>サブセクション見出し（h3）</h3>
 
-  <!-- p: block-level paragraph -->
-  <p>This is a regular paragraph.</p>
+  <!-- p: ブロックレベルの段落要素 -->
+  <p>通常の段落テキストです。</p>
 
-  <!-- Inline text formatting elements -->
+  <!-- インラインテキスト装飾要素: 文章の一部に意味や見た目を加える -->
   <p>
-    <strong>strong</strong> makes text bold and signals importance.
-    <em>em</em> makes text italic and adds emphasis.
-    <code>code</code> displays text in a monospace font.
-    <mark>mark</mark> highlights text in yellow by default.
-    <del>del</del> shows strikethrough (deleted content).
+    <strong>strong</strong>は重要なテキストを太字にする。
+    <em>em</em>は強調を表し、斜体になる。
+    <code>code</code>はコードをモノスペースフォントで表示する。
+    <mark>mark</mark>はテキストをハイライト表示する。
+    <del>del</del>は削除済みテキストに取り消し線を引く。
     <abbr title="HyperText Markup Language">HTML</abbr>
-    <!-- abbr: shows a tooltip with the full form on hover -->
+    <!-- abbr: 略語にhover時のツールチップ（全称）を付ける -->
   </p>
 
-  <!-- br: a line break (self-closing, no content) -->
-  <p>Line one.<br>Line two (same paragraph).</p>
+  <!-- br: 改行（自己終了タグ・中身なし）-->
+  <p>1行目。<br>2行目（同じ段落内）。</p>
 
-  <!-- hr: a thematic break — rendered as a horizontal line -->
+  <!-- hr: テーマの区切り線。見た目は水平線で表示される -->
   <hr>
 
-  <p>Content after the divider.</p>
+  <p>区切り線の後のコンテンツ。</p>
 
 </body>`,
 
-`<!-- Links & Images -->
+`<!-- リンクと画像 -->
 <body>
 
-  <!-- a: anchor element — creates a hyperlink -->
-  <!-- href: the URL the link points to -->
-  <a href="https://example.com">Visit Example</a>
+  <!-- a: アンカー要素。クリックできるリンクを作る -->
+  <!-- href: リンク先のURL（HyperText Reference）-->
+  <a href="https://example.com">Exampleを開く</a>
 
-  <!-- target="_blank": open in a new browser tab -->
-  <!-- rel="noopener noreferrer": security best practice for _blank links -->
+  <!-- target="_blank": 別タブで開く -->
+  <!-- rel="noopener noreferrer": _blankを使うときのセキュリティ対策 -->
   <a href="https://example.com" target="_blank" rel="noopener noreferrer">
-    Open in new tab
+    新しいタブで開く
   </a>
 
-  <!-- Link to a section on the same page using its id -->
-  <a href="#about">Jump to About section</a>
+  <!-- ページ内の特定のidへジャンプするリンク -->
+  <a href="#about">Aboutセクションへ</a>
 
-  <!-- img: embed an image (self-closing) -->
-  <!-- src: path to the image file -->
-  <!-- alt: text shown if image fails to load; also read by screen readers -->
-  <!-- width/height: reserve space so the page doesn't jump when image loads -->
+  <!-- img: 画像を埋め込む自己終了タグ -->
+  <!-- src: 画像ファイルのパス -->
+  <!-- alt: 画像が読み込めない場合や視覚障害者向けの代替テキスト -->
+  <!-- width/height: 画像のスペースを事前確保してレイアウトのズレを防ぐ -->
   <img
     src="photo.jpg"
-    alt="A photo of the mountains"
+    alt="山の風景写真"
     width="800"
     height="450"
   >
 
-  <!-- The section we linked to above -->
+  <!-- 上のリンク先となるid付きのセクション -->
   <section id="about">
     <h2>About</h2>
-    <p>This section is the jump target.</p>
+    <p>このセクションがジャンプ先になる。</p>
   </section>
 
 </body>`,
 
-`<!-- Lists -->
+`<!-- リスト -->
 <body>
 
-  <!-- ul: unordered list — items rendered as bullet points -->
+  <!-- ul: 順序なしリスト。各項目が箇条書き（●）で表示される -->
   <ul>
     <li>HTML</li>
-    <!-- li: one list item; used inside ul, ol, or menu -->
+    <!-- li: リストの項目1つ。ul・ol・menuの直下に書く -->
     <li>CSS</li>
     <li>JavaScript</li>
   </ul>
 
-  <!-- ol: ordered list — items numbered automatically -->
+  <!-- ol: 順序付きリスト。自動的に番号が振られる -->
   <ol>
-    <li>Install Node.js</li>
-    <li>Run npm install</li>
-    <li>Run npm start</li>
+    <li>Node.jsをインストールする</li>
+    <li>npm installを実行する</li>
+    <li>npm startで起動する</li>
   </ol>
 
-  <!-- start attribute: begin numbering at a different number -->
+  <!-- start属性: 番号の開始値を指定できる -->
   <ol start="3">
-    <li>This is item 3</li>
-    <li>This is item 4</li>
+    <li>これが3番目</li>
+    <li>これが4番目</li>
   </ol>
 
-  <!-- Nested list: a ul or ol inside an li -->
+  <!-- ネストしたリスト: li の中にさらに ul や ol を入れられる -->
   <ul>
-    <li>Frontend
+    <li>フロントエンド
       <ul>
         <li>React</li>
         <li>Vue</li>
       </ul>
     </li>
-    <li>Backend
+    <li>バックエンド
       <ul>
         <li>Node.js</li>
         <li>Python</li>
@@ -143,124 +144,123 @@ const HTML = [
     </li>
   </ul>
 
-  <!-- dl: description list — term + definition pairs -->
+  <!-- dl: 定義リスト。用語と説明のペアに使う -->
   <dl>
-    <dt>HTML</dt>   <!-- dt: the term -->
-    <dd>HyperText Markup Language — structures web content.</dd>
-    <!-- dd: the description / definition -->
+    <dt>HTML</dt>   <!-- dt: 定義する用語（Definition Term）-->
+    <dd>ウェブコンテンツを構造化するマークアップ言語。</dd>
+    <!-- dd: 用語の説明（Definition Description）-->
     <dt>CSS</dt>
-    <dd>Cascading Style Sheets — controls visual presentation.</dd>
+    <dd>HTMLの見た目を制御するスタイルシート言語。</dd>
   </dl>
 
 </body>`,
 
-`<!-- Forms & Inputs -->
+`<!-- フォームと入力要素 -->
 <body>
 
-  <!-- form: groups inputs and sends data to a server -->
-  <!-- action: URL that receives the submitted data -->
-  <!-- method: "get" appends data to URL; "post" sends in request body -->
+  <!-- form: 入力データをサーバーに送信するための容器 -->
+  <!-- action: データの送信先URL -->
+  <!-- method: "get"はURLにデータを付加、"post"はリクエスト本文に入れる -->
   <form action="/submit" method="post">
 
-    <!-- label + for: clicking the label focuses the linked input -->
-    <!-- for must match the input's id -->
-    <label for="username">Username</label>
+    <!-- label: クリックすると対応するinputにフォーカスする -->
+    <!-- for属性の値は、対応するinputのid属性と一致させる必要がある -->
+    <label for="username">ユーザー名</label>
     <input
       type="text"
       id="username"
       name="username"
-      placeholder="Enter your name"
+      placeholder="名前を入力"
       required
-      <!-- required: browser blocks submit if this field is empty -->
     >
+    <!-- required: この入力欄が空のままではフォームを送信できない -->
 
-    <label for="email">Email</label>
+    <label for="email">メールアドレス</label>
     <input type="email" id="email" name="email" required>
-    <!-- type="email": browser validates the email format automatically -->
+    <!-- type="email": ブラウザがメール形式かどうか自動で検証する -->
 
-    <label for="password">Password</label>
+    <label for="password">パスワード</label>
     <input type="password" id="password" name="password">
-    <!-- type="password": characters are hidden as dots -->
+    <!-- type="password": 入力内容が●●●で隠される -->
 
-    <label for="age">Age</label>
+    <label for="age">年齢</label>
     <input type="number" id="age" name="age" min="0" max="120">
-    <!-- min/max: browser rejects values outside this range -->
+    <!-- min/max: ブラウザがこの範囲外の値を拒否する -->
 
-    <!-- textarea: multi-line text input -->
-    <label for="bio">Bio</label>
+    <!-- textarea: 複数行のテキスト入力エリア -->
+    <label for="bio">自己紹介</label>
     <textarea id="bio" name="bio" rows="4" cols="40"></textarea>
 
-    <!-- button type="submit": sends the form data -->
-    <button type="submit">Send</button>
+    <!-- button type="submit": フォームデータを送信する -->
+    <button type="submit">送信</button>
 
   </form>
 
 </body>`,
 
-`<!-- Semantic layout elements -->
+`<!-- セマンティックなレイアウト要素 -->
 <body>
 
-  <!-- header: introductory content — site logo, nav, tagline -->
+  <!-- header: サイトロゴ・ナビ・キャッチコピーなど導入コンテンツ -->
   <header>
-    <h1>Mushin Code</h1>
+    <h1>zencode</h1>
     <nav>
-      <!-- nav: a group of navigation links -->
-      <a href="/">Home</a>
+      <!-- nav: ナビゲーションリンクのグループ -->
+      <a href="/">ホーム</a>
       <a href="/about">About</a>
-      <a href="/contact">Contact</a>
+      <a href="/contact">連絡先</a>
     </nav>
   </header>
 
-  <!-- main: the primary unique content of the page -->
-  <!-- There should be only one main per page -->
+  <!-- main: ページの主要コンテンツ。1ページに1つだけ使う -->
   <main>
 
-    <!-- article: self-contained content that makes sense on its own -->
+    <!-- article: それ単独で意味が完結するコンテンツ（ブログ記事など）-->
     <article>
-      <h2>Blog Post Title</h2>
-      <p>Post content goes here...</p>
+      <h2>ブログ記事タイトル</h2>
+      <p>記事の本文がここに入る...</p>
     </article>
 
-    <!-- aside: content tangentially related to the main content -->
+    <!-- aside: メインコンテンツに関連する補足情報（サイドバーなど）-->
     <aside>
-      <h3>Related Links</h3>
+      <h3>関連リンク</h3>
       <ul>
-        <li><a href="#">Link 1</a></li>
+        <li><a href="#">リンク1</a></li>
       </ul>
     </aside>
 
   </main>
 
-  <!-- footer: closing content — copyright, links, contact info -->
+  <!-- footer: 著作権・連絡先・補足リンクなど締めくくりのコンテンツ -->
   <footer>
     <p>Copyright 2026 Ichito Watanabe</p>
   </footer>
 
 </body>`,
 
-`<!-- Tables -->
+`<!-- テーブル（表）-->
 <body>
 
-  <!-- table: displays data in rows and columns -->
+  <!-- table: 行と列でデータを表示する -->
   <table>
 
-    <!-- thead: groups the header rows -->
+    <!-- thead: ヘッダー行のグループ（見出し行を囲む）-->
     <thead>
       <tr>
-        <!-- tr: table row -->
-        <th scope="col">Name</th>
-        <!-- th: header cell; bold and centered by default -->
-        <!-- scope="col" tells screen readers this header describes a column -->
-        <th scope="col">Language</th>
-        <th scope="col">Score</th>
+        <!-- tr: テーブルの行（Table Row）-->
+        <th scope="col">名前</th>
+        <!-- th: 見出しセル（太字・中央寄せで表示される）-->
+        <!-- scope="col": スクリーンリーダーに列の見出しと伝える -->
+        <th scope="col">言語</th>
+        <th scope="col">スコア</th>
       </tr>
     </thead>
 
-    <!-- tbody: groups the body rows (the actual data) -->
+    <!-- tbody: データ行のグループ（実際のデータを囲む）-->
     <tbody>
       <tr>
         <td>Ichito</td>
-        <!-- td: data cell — regular table content -->
+        <!-- td: データセル（通常のテーブルの中身）-->
         <td>Python</td>
         <td>95</td>
       </tr>
@@ -271,11 +271,11 @@ const HTML = [
       </tr>
     </tbody>
 
-    <!-- tfoot: groups the footer rows (totals, summaries) -->
+    <!-- tfoot: フッター行のグループ（合計・まとめ行を囲む）-->
     <tfoot>
       <tr>
-        <td colspan="2">Average</td>
-        <!-- colspan: this cell spans 2 columns -->
+        <td colspan="2">平均</td>
+        <!-- colspan: この1つのセルが2列分を占める -->
         <td>91.5</td>
       </tr>
     </tfoot>
@@ -284,23 +284,21 @@ const HTML = [
 
 </body>`,
 
-`<!-- Audio, Video & Iframe -->
+`<!-- 音声・動画・iframe -->
 <body>
 
-  <!-- audio: embeds a sound file -->
-  <!-- controls: shows the browser's play/pause/volume UI -->
+  <!-- audio: 音声ファイルを埋め込む -->
+  <!-- controls: ブラウザ標準の再生・一時停止・音量UIを表示する -->
   <audio controls>
-    <!-- source: browser picks the first format it can play -->
+    <!-- source: 複数のフォーマットを書くと対応形式を自動選択する -->
     <source src="music.mp3" type="audio/mpeg">
     <source src="music.ogg" type="audio/ogg">
-    Your browser does not support audio.
-    <!-- Fallback text shown if browser can't play any source -->
+    このブラウザは音声再生に対応していません。
+    <!-- 両方のsourceが再生できない場合に表示されるフォールバックテキスト -->
   </audio>
 
-  <!-- video: embeds a video file -->
-  <!-- autoplay muted: starts playing silently (muted is required for autoplay) -->
-  <!-- loop: restarts when it reaches the end -->
-  <!-- poster: image shown before the video starts -->
+  <!-- video: 動画ファイルを埋め込む -->
+  <!-- poster: 再生前に表示するサムネイル画像 -->
   <video
     controls
     width="640"
@@ -309,82 +307,83 @@ const HTML = [
   >
     <source src="demo.mp4"  type="video/mp4">
     <source src="demo.webm" type="video/webm">
-    Your browser does not support video.
+    このブラウザは動画再生に対応していません。
   </video>
 
-  <!-- iframe: embeds another webpage inside this page -->
-  <!-- sandbox: restricts what the embedded page can do -->
+  <!-- iframe: 別のウェブページをページ内に埋め込む -->
+  <!-- sandbox: 埋め込んだページの権限を制限してセキュリティを高める -->
   <iframe
     src="https://example.com"
     width="600"
     height="400"
-    title="Example website"
+    title="Exampleサイト"
     sandbox
   ></iframe>
 
 </body>`,
 
-`<!-- Meta tags & SEO -->
+`<!-- メタタグとSEO -->
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- Description: shown in Google search results -->
-  <!-- Keep under 160 characters -->
-  <meta name="description" content="A calm typing practice site for programmers.">
+  <!-- description: Google検索結果のスニペット（説明文）として表示される -->
+  <!-- 160文字以内に収めると表示が切れにくい -->
+  <meta name="description" content="プログラマーのための静かなタイピング練習サイト。">
 
-  <!-- Keywords: less important now, but still used by some engines -->
-  <meta name="keywords" content="typing, code, programming, practice">
+  <!-- keywords: 現在のSEOへの影響は小さいが記録として書くことはある -->
+  <meta name="keywords" content="タイピング, コード, プログラミング, 練習">
 
-  <!-- Author: credits the page creator -->
+  <!-- author: ページ制作者の名前 -->
   <meta name="author" content="Ichito Watanabe">
 
-  <!-- Open Graph: controls how the page looks when shared on social media -->
-  <meta property="og:title"       content="Mushin Code">
-  <meta property="og:description" content="Type code. Find calm.">
+  <!-- OGP（Open Graph Protocol）: SNSでシェアされたときの表示を制御する -->
+  <meta property="og:title"       content="zencode">
+  <meta property="og:description" content="無心に打て。">
   <meta property="og:image"       content="https://example.com/og-image.png">
   <meta property="og:url"         content="https://example.com">
   <meta property="og:type"        content="website">
 
-  <!-- Twitter Card: similar to OG, but for Twitter/X -->
+  <!-- Twitter Card: Twitter/Xでシェアされたときの表示を制御する -->
   <meta name="twitter:card"        content="summary_large_image">
-  <meta name="twitter:title"       content="Mushin Code">
-  <meta name="twitter:description" content="Type code. Find calm.">
+  <meta name="twitter:title"       content="zencode">
+  <meta name="twitter:description" content="無心に打て。">
   <meta name="twitter:image"       content="https://example.com/og-image.png">
 
-  <title>Mushin Code — Typing Practice</title>
+  <title>zencode — タイピング練習</title>
 </head>`,
 
-`<!-- Accessibility attributes -->
+`<!-- アクセシビリティ属性（ARIA）-->
 <body>
 
-  <!-- role: tells assistive technology what this element does -->
-  <!-- Use semantic HTML first; role is a fallback -->
-  <div role="button" tabindex="0">Custom Button</div>
-  <!-- tabindex="0" makes the div focusable via keyboard Tab -->
+  <!-- role: 要素が何であるかをスクリーンリーダーに伝える -->
+  <!-- セマンティックHTMLで代替できる場合はroleより要素選択を優先する -->
+  <div role="button" tabindex="0">カスタムボタン</div>
+  <!-- tabindex="0": Tabキーでフォーカスできるようにする -->
 
-  <!-- aria-label: provides a text label for non-text elements -->
-  <button aria-label="Close dialog">X</button>
-  <!-- Screen reader announces "Close dialog button" not just "X button" -->
+  <!-- aria-label: テキストを持たない要素に読み上げ用のラベルを付ける -->
+  <button aria-label="ダイアログを閉じる">×</button>
+  <!-- スクリーンリーダーは「×ボタン」ではなく「ダイアログを閉じるボタン」と読む -->
 
-  <!-- aria-hidden: hides decorative elements from screen readers -->
+  <!-- aria-hidden: 装飾的な要素をスクリーンリーダーから隠す -->
   <span aria-hidden="true">★★★★☆</span>
-  <span>4 out of 5 stars</span>
+  <span>5点中4点</span>
+  <!-- 読み上げは「5点中4点」のみ。記号の読み上げを避けられる -->
 
-  <!-- aria-expanded: indicates whether a collapsible section is open -->
+  <!-- aria-expanded: 折りたたみ可能なセクションが開いているか示す -->
   <button aria-expanded="false" aria-controls="menu">
-    Toggle Menu
+    メニューを開く
   </button>
   <ul id="menu" hidden>
-    <li>Item 1</li>
-    <li>Item 2</li>
+    <li>項目1</li>
+    <li>項目2</li>
   </ul>
 
-  <!-- aria-live: announces dynamic content changes to screen readers -->
-  <!-- "polite": waits until the user is idle -->
-  <!-- "assertive": interrupts immediately -->
+  <!-- aria-live: 動的に変化するコンテンツをスクリーンリーダーに通知する -->
+  <!-- "polite": ユーザーが操作を止めたタイミングで読み上げる -->
+  <!-- "assertive": 現在の読み上げを中断して即座に通知する -->
   <div aria-live="polite" id="status"></div>
-  <!-- When JavaScript updates #status, screen readers read the new text -->
+  <!-- JSで#statusのテキストを変更すると、スクリーンリーダーが読み上げる -->
 
 </body>`
 

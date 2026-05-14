@@ -8,9 +8,95 @@ body {
     background:  #0c0c0c;
     font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
     min-height:  100vh;
+    border-top:  2px solid #6b1a1a; /* 朱色の細いアクセントライン */
 }
 
-/* ---- Header ---- */
+/* ── ページ遷移 ── */
+.page {
+    transition: opacity 0.35s ease;
+}
+
+/* ── ホーム画面 ── */
+.home-inner {
+    display:         flex;
+    flex-direction:  column;
+    align-items:     center;
+    justify-content: center;
+    min-height:      100vh;
+    padding:         48px;
+    text-align:      center;
+}
+
+.home-subtitle {
+    font-size:      11px;
+    letter-spacing: 0.5em;
+    color:          #6b1a1a; /* 朱色 */
+    margin-bottom:  28px;
+    font-weight:    300;
+}
+
+.home-logo {
+    font-size:      30px;
+    font-weight:    300;
+    letter-spacing: 0.35em;
+    color:          #282828;
+    margin-bottom:  10px;
+}
+
+.home-desc {
+    font-size:      11px;
+    letter-spacing: 0.3em;
+    color:          #1a1a1a;
+    margin-bottom:  72px;
+}
+
+/* ── 言語カードグリッド ── */
+.lang-grid {
+    display:               grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap:                   10px;
+    max-width:             520px;
+    width:                 100%;
+}
+
+.lang-card {
+    background:     none;
+    border:         1px solid #141414;
+    color:          #2a2a2a;
+    padding:        30px 16px;
+    border-radius:  1px;
+    cursor:         pointer;
+    font:           inherit;
+    display:        flex;
+    flex-direction: column;
+    align-items:    center;
+    gap:            10px;
+    transition:     border-color 0.2s, color 0.2s, background 0.2s;
+}
+
+.lang-card:hover {
+    border-color: #2a2a2a;
+    background:   #0f0f0f;
+    color:        #4a4a4a;
+}
+
+.lang-en {
+    font-size:      13px;
+    letter-spacing: 0.08em;
+}
+
+.lang-ja {
+    font-size:      20px;
+    letter-spacing: 0.2em;
+    color:          #1a1a1a;
+    transition:     color 0.2s;
+}
+
+.lang-card:hover .lang-ja {
+    color: #6b1a1a; /* ホバー時に朱色で漢字が浮かぶ */
+}
+
+/* ── ヘッダー（タイピング画面） ── */
 .header {
     display:         flex;
     align-items:     center;
@@ -19,6 +105,21 @@ body {
     border-bottom:   1px solid #141414;
 }
 
+.back-btn {
+    background:     none;
+    border:         none;
+    color:          #282828;
+    font:           inherit;
+    font-size:      12px;
+    letter-spacing: 0.08em;
+    cursor:         pointer;
+    padding:        4px 0;
+    transition:     color 0.15s;
+    min-width:      80px;
+}
+
+.back-btn:hover { color: #555; }
+
 .logo {
     font-size:      13px;
     font-weight:    300;
@@ -26,50 +127,41 @@ body {
     color:          #1e1e1e;
 }
 
-/* ---- Language selector ---- */
-.langs { display: flex; gap: 4px; }
-
-.lang {
-    background:     none;
-    border:         1px solid transparent;
-    color:          #282828;
-    padding:        5px 13px;
-    border-radius:  3px;
-    cursor:         pointer;
-    font:           inherit;
+.current-lang {
     font-size:      12px;
-    letter-spacing: 0.05em;
-    transition:     color 0.15s, border-color 0.15s, background 0.15s;
+    letter-spacing: 0.1em;
+    color:          #282828;
+    text-align:     right;
+    min-width:      80px;
 }
 
-.lang:hover { color: #444; border-color: #1e1e1e; }
-
-.lang.active {
-    color:        #5a5a5a;
-    border-color: #2a2a2a;
-    background:   #111;
+.current-lang .lang-kanji {
+    display:        block;
+    font-size:      13px;
+    color:          #6b1a1a; /* 朱色で漢字 */
+    letter-spacing: 0.25em;
+    margin-top:     3px;
 }
 
-/* ---- Main ---- */
+/* ── メインエリア（タイピング画面） ── */
 .main {
     max-width: 840px;
     margin:    0 auto;
     padding:   64px 48px 80px;
 }
 
-/* ---- Code container ---- */
+/* ── コード表示エリア ── */
 .code-wrap {
-    outline:  none;
-    cursor:   text;
-    position: relative;
+    outline:    none;
+    cursor:     text;
+    position:   relative;
     max-height: 70vh;
     overflow-y: auto;
 }
 
-/* Scrollbar styling */
-.code-wrap::-webkit-scrollbar       { width: 4px; }
+.code-wrap::-webkit-scrollbar       { width: 3px; }
 .code-wrap::-webkit-scrollbar-track { background: transparent; }
-.code-wrap::-webkit-scrollbar-thumb { background: #222; border-radius: 2px; }
+.code-wrap::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
 
 .code-wrap:not(.focused) .code-text { opacity: 0.4; }
 
@@ -80,7 +172,7 @@ body {
     align-items:     center;
     justify-content: center;
     font-size:       12px;
-    letter-spacing:  0.15em;
+    letter-spacing:  0.2em;
     color:           #1c1c1c;
     pointer-events:  none;
     transition:      opacity 0.3s;
@@ -95,24 +187,30 @@ body {
     transition:  opacity 0.3s;
 }
 
-/* ---- Character states ---- */
+/* ── 文字の状態 ── */
+
+/* 未入力：ほぼ見えない暗さ */
 .c.wait { color: #1e1e1e; }
-.c.done { color: #484848; }
+
+/* 入力済み：明るい白で達成感を示す */
+.c.done { color: #c8c8c8; }
+
+/* ミスタイプ：落ち着いた赤で静かに警告 */
 .c.bad  { color: #7a3030; background: rgba(100, 30, 30, 0.12); border-radius: 2px; }
 
-/* Cursor: underline on regular chars */
+/* カーソル位置：下線で現在地を示す */
 .c.cur:not(.nl) {
-    color:         #2e2e2e;
-    border-bottom: 1px solid #4a4a4a;
+    color:         #555;
+    border-bottom: 1px solid #5a5a5a;
 }
 
-/* Newline indicator via pseudo-element */
-.c.nl::before      { content: '↵'; font-size: 0.65em; opacity: 0.12; }
-.c.nl.done::before { opacity: 0.07; }
-.c.nl.cur::before  { opacity: 0.5; color: #5a5a5a; }
-.c.nl.bad::before  { opacity: 0.7; color: #7a3030; }
+/* 改行記号（↵）の表示 */
+.c.nl::before       { content: '↵'; font-size: 0.65em; opacity: 0.12; }
+.c.nl.done::before  { opacity: 0.3; color: #888; }
+.c.nl.cur::before   { opacity: 0.6; color: #6a6a6a; }
+.c.nl.bad::before   { opacity: 0.7; color: #7a3030; }
 
-/* ---- Progress ---- */
+/* ── 進捗バー ── */
 .footer {
     margin-top:  52px;
     display:     flex;
@@ -137,18 +235,18 @@ body {
     text-align:     right;
 }
 
-/* ---- Completion ---- */
+/* ── 完了メッセージ ── */
 .done-msg {
     margin-top:     40px;
     font-size:      13px;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.25em;
     color:          #2e3e2e;
     display:        none;
 }
 
 .done-msg.show { display: block; }
 
-/* ---- Action buttons ---- */
+/* ── アクションボタン ── */
 .actions {
     display:    flex;
     gap:        12px;
@@ -161,29 +259,23 @@ body {
     border:         1px solid #181818;
     color:          #1e1e1e;
     padding:        7px 18px;
-    border-radius:  3px;
+    border-radius:  1px;
     cursor:         pointer;
     font:           inherit;
     font-size:      12px;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.12em;
     transition:     color 0.15s, border-color 0.15s;
 }
 
-.action-btn.show          { display: inline-block; }
-.action-btn:hover         { color: #444; border-color: #2a2a2a; }
+.action-btn.show  { display: inline-block; }
+.action-btn:hover { color: #444; border-color: #2a2a2a; }
 
-/* ---- Responsive ---- */
+/* ── レスポンシブ ── */
 @media (max-width: 600px) {
-    .header {
-        flex-direction: column;
-        align-items:    flex-start;
-        gap:            12px;
-        padding:        16px 20px;
-    }
-
-    .main {
-        padding: 32px 20px 60px;
-    }
-
-    .code-text { font-size: 13px; }
+    .header       { padding: 16px 20px; }
+    .main         { padding: 32px 20px 60px; }
+    .code-text    { font-size: 13px; }
+    .home-inner   { padding: 32px 20px; }
+    .lang-grid    { grid-template-columns: repeat(2, 1fr); }
+    .home-logo    { font-size: 22px; }
 }

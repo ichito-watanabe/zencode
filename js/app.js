@@ -1,5 +1,5 @@
-// All snippet arrays are loaded via <script> tags before this file.
-// PYTHON, JAVASCRIPT, TYPESCRIPT, SQL, HTML, CSS are global arrays.
+// 各スニペットファイル（python.js等）が先に読み込まれ、
+// PYTHON / JAVASCRIPT / TYPESCRIPT / SQL / HTML / CSS というグローバル配列が存在する前提
 
 const SNIPPETS = {
     python:     PYTHON,
@@ -10,29 +10,86 @@ const SNIPPETS = {
     css:        CSS,
 };
 
-// ---- State ----
+// 各言語の表示名と漢字ラベル
+const LANG_META = {
+    python:     { en: 'Python',     ja: '基礎' },
+    javascript: { en: 'JavaScript', ja: '動作' },
+    typescript: { en: 'TypeScript', ja: '型'   },
+    sql:        { en: 'SQL',        ja: '問合'  },
+    html:       { en: 'HTML',       ja: '構造'  },
+    css:        { en: 'CSS',        ja: '装飾'  },
+};
+
+// ── ページ要素 ──
+const pageHome   = document.getElementById('page-home');
+const pageTyping = document.getElementById('page-typing');
+
+// ── タイピング状態 ──
 let currentLang = 'python';
-let chars       = [];   // array of { span, ch } for every character
-let pos         = 0;    // index of the current (cursor) character
+let chars       = [];   // { span, ch } の配列（コード全文字分）
+let pos         = 0;    // 現在のカーソル位置（文字インデックス）
 let finished    = false;
 
-// ---- DOM refs ----
-const codeWrap = document.getElementById('codeWrap');
-const codeText = document.getElementById('codeText');
-const fill     = document.getElementById('fill');
-const counter  = document.getElementById('counter');
-const doneMsg  = document.getElementById('doneMsg');
-const againBtn = document.getElementById('againBtn');
-const nextBtn  = document.getElementById('nextBtn');
+// ── DOM参照 ──
+const codeWrap      = document.getElementById('codeWrap');
+const codeText      = document.getElementById('codeText');
+const fill          = document.getElementById('fill');
+const counter       = document.getElementById('counter');
+const doneMsg       = document.getElementById('doneMsg');
+const againBtn      = document.getElementById('againBtn');
+const nextBtn       = document.getElementById('nextBtn');
+const backBtn       = document.getElementById('backBtn');
+const currentLangEl = document.getElementById('currentLang');
 
-// ---- Pick a random snippet from the current language ----
+// ── ページ遷移：ホーム → タイピング ──
+function goToTyping(lang) {
+    currentLang = lang;
+    const meta  = LANG_META[lang];
+
+    // ヘッダーの言語表示を更新
+    currentLangEl.innerHTML =
+        `${meta.en}<span class="lang-kanji">${meta.ja}</span>`;
+
+    buildCode(pickSnippet());
+
+    // フェードアウト → 画面切り替え → フェードイン
+    pageHome.style.opacity      = '0';
+    pageHome.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+        pageHome.style.display       = 'none';
+        pageTyping.style.display     = 'block';
+        pageTyping.style.pointerEvents = '';
+        requestAnimationFrame(() => {
+            pageTyping.style.opacity = '1';
+            codeWrap.focus();
+        });
+    }, 350);
+}
+
+// ── ページ遷移：タイピング → ホーム ──
+function goToHome() {
+    pageTyping.style.opacity      = '0';
+    pageTyping.style.pointerEvents = 'none';
+
+    setTimeout(() => {
+        pageTyping.style.display    = 'none';
+        pageHome.style.display      = 'block';
+        pageHome.style.pointerEvents = '';
+        requestAnimationFrame(() => {
+            pageHome.style.opacity = '1';
+        });
+    }, 350);
+}
+
+// ── ランダムにスニペットを1つ選ぶ ──
 function pickSnippet() {
-    const pool = SNIPPETS[currentLang];
+    const pool  = SNIPPETS[currentLang];
     const index = Math.floor(Math.random() * pool.length);
     return pool[index];
 }
 
-// ---- Build character spans from a code string ----
+// ── コードを文字単位のspanに分解して描画 ──
 function buildCode(snippet) {
     codeText.innerHTML = '';
     chars    = [];
@@ -45,8 +102,13 @@ function buildCode(snippet) {
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
         const span = document.createElement('span');
+
+        // 最初の文字だけカーソル状態（cur）、それ以外は未入力（wait）
         span.classList.add('c', i === 0 ? 'cur' : 'wait');
+
+        // 改行文字には特別なクラスを付与（↵の擬似要素表示に使う）
         if (ch === '\n') span.classList.add('nl');
+
         span.textContent = ch;
         chars.push({ span, ch });
         codeText.appendChild(span);
@@ -56,7 +118,7 @@ function buildCode(snippet) {
     codeWrap.scrollTop = 0;
 }
 
-// ---- Update progress bar and counter ----
+// ── 進捗バーとカウンターを更新 ──
 function syncProgress() {
     const total = chars.length;
     const pct   = total ? (pos / total * 100).toFixed(1) : 0;
@@ -64,15 +126,17 @@ function syncProgress() {
     counter.textContent = `${pos} / ${total}`;
 }
 
-// ---- Handle keyboard input ----
+// ── キー入力の処理 ──
 function onKey(e) {
     if (finished) return;
+
+    // Tabキーはブラウザのフォーカス移動ではなく入力として扱う
     if (e.key === 'Tab') e.preventDefault();
 
     const current = chars[pos];
     if (!current) return;
 
-    // Backspace: move back one position
+    // Backspace: 1文字戻る
     if (e.key === 'Backspace') {
         if (pos === 0) return;
         current.span.classList.remove('cur');
@@ -85,7 +149,7 @@ function onKey(e) {
         return;
     }
 
-    // Map pressed key to the expected character
+    // 押されたキーを期待する文字と照合
     const expected = current.ch;
     let   pressed  = null;
 
@@ -93,15 +157,17 @@ function onKey(e) {
     else if (expected === '\t' && e.key === 'Tab')   pressed = '\t';
     else if (e.key.length === 1)                     pressed = e.key;
 
-    if (pressed === null) return; // ignore modifier / nav keys
+    // 修飾キーや矢印キーなどは無視
+    if (pressed === null) return;
 
     if (pressed === expected) {
-        // Correct keystroke
+        // 正解：入力済み（done）に変えて次へ進む
         current.span.classList.remove('cur', 'bad', 'wait');
         current.span.classList.add('done');
         pos++;
 
         if (pos >= chars.length) {
+            // 全文字入力完了
             finished = true;
             doneMsg.classList.add('show');
             againBtn.classList.add('show');
@@ -113,7 +179,7 @@ function onKey(e) {
             next.span.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         }
     } else {
-        // Wrong keystroke — gentle error, stays at same position
+        // 不正解：一時的に赤く光らせて、350ms後に戻す（位置は変わらない）
         current.span.classList.add('bad');
         setTimeout(() => {
             if (!current.span.classList.contains('done')) {
@@ -125,35 +191,31 @@ function onKey(e) {
     syncProgress();
 }
 
-// ---- Language switching ----
-document.getElementById('langs').addEventListener('click', (e) => {
-    const btn = e.target.closest('.lang[data-lang]');
-    if (!btn) return;
-    currentLang = btn.dataset.lang;
-    document.querySelectorAll('.lang').forEach(b =>
-        b.classList.toggle('active', b === btn)
-    );
-    buildCode(pickSnippet());
-    codeWrap.focus();
+// ── イベント登録 ──
+
+// 言語カードをクリック → タイピング画面へ遷移
+document.querySelector('.lang-grid').addEventListener('click', (e) => {
+    const card = e.target.closest('.lang-card[data-lang]');
+    if (!card) return;
+    goToTyping(card.dataset.lang);
 });
 
-// ---- Try again (same snippet rebuild) ----
+// 戻るボタン → ホーム画面へ遷移
+backBtn.addEventListener('click', goToHome);
+
+// また打つ：同言語でランダムに再抽選
 againBtn.addEventListener('click', () => {
     buildCode(pickSnippet());
     codeWrap.focus();
 });
 
-// ---- Next: pick a new random snippet ----
+// 次のコード：同言語でランダムに別のコードを選ぶ
 nextBtn.addEventListener('click', () => {
     buildCode(pickSnippet());
     codeWrap.focus();
 });
 
-// ---- Focus tracking ----
-codeWrap.addEventListener('focus', () => codeWrap.classList.add('focused'));
-codeWrap.addEventListener('blur',  () => codeWrap.classList.remove('focused'));
+// フォーカス状態を管理（コードを薄くするエフェクト用）
+codeWrap.addEventListener('focus',   () => codeWrap.classList.add('focused'));
+codeWrap.addEventListener('blur',    () => codeWrap.classList.remove('focused'));
 codeWrap.addEventListener('keydown', onKey);
-
-// ---- Init ----
-buildCode(pickSnippet());
-codeWrap.focus();
