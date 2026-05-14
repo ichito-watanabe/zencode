@@ -54,6 +54,16 @@ function isTypeable(ch) {
     return ch.codePointAt(0) <= 127;
 }
 
+// 全角英数記号を半角に正規化する
+// 全角 U+FF01〜U+FF5E は ASCII U+0021〜U+007E と 0xFEE0 だけずれている
+// 全角スペース U+3000 も半角スペースに変換する
+function normalize(ch) {
+    const code = ch.codePointAt(0);
+    if (code >= 0xFF01 && code <= 0xFF5E) return String.fromCodePoint(code - 0xFEE0);
+    if (code === 0x3000) return ' ';
+    return ch;
+}
+
 // hiddenInputをカーソル文字の真下に移動する
 // IMEの候補ウィンドウはinput要素の位置に追従するため、
 // これをすることでIMEウィンドウがコード上の正しい位置に出る
@@ -72,7 +82,7 @@ function processChar(ch) {
     const current = chars[pos];
     if (!current) return false;
 
-    if (ch === current.ch) {
+    if (normalize(ch) === normalize(current.ch)) {
         current.span.classList.remove('cur', 'bad', 'wait');
         current.span.classList.add('done');
         pos++;
