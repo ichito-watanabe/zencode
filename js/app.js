@@ -53,17 +53,17 @@ document.body.appendChild(hiddenInput);
 // ── 画面下部の入力トレイ（変換中テキスト・ミスタイプ表示）──
 const imeTray = document.createElement('div');
 imeTray.style.cssText =
-    'position:fixed;bottom:0;left:0;right:0;background:#0c0c0c;' +
-    'border-top:1px solid #181818;padding:10px 48px;display:none;' +
+    'position:fixed;bottom:0;left:0;right:0;background:#fafafa;' +
+    'border-top:1px solid #e8e8e8;padding:10px 48px;display:none;' +
     'align-items:center;gap:14px;z-index:200;font-family:inherit;';
 document.body.appendChild(imeTray);
 
 const trayLabel = document.createElement('span');
-trayLabel.style.cssText = 'color:#2a2a2a;font-size:10px;letter-spacing:0.15em;';
+trayLabel.style.cssText = 'color:#bbb;font-size:10px;letter-spacing:0.15em;';
 trayLabel.textContent = '入力中';
 
 const trayText = document.createElement('span');
-trayText.style.cssText = 'font-size:13px;letter-spacing:0.05em;color:#666;';
+trayText.style.cssText = 'font-size:13px;letter-spacing:0.05em;color:#555;';
 
 imeTray.appendChild(trayLabel);
 imeTray.appendChild(trayText);
@@ -74,7 +74,7 @@ let trayTimer = null;
 function showTray(text, isError) {
     clearTimeout(trayTimer);
     trayText.textContent = text;
-    trayText.style.color = isError ? '#7a3030' : '#666';
+    trayText.style.color = isError ? '#c0392b' : '#555';
     imeTray.style.display = 'flex';
     if (isError) trayTimer = setTimeout(hideTray, 600);
 }
@@ -177,6 +177,208 @@ function goToHome() {
     }, 350);
 }
 
+// ── シンタックスハイライト用キーワードセット ──
+const KW = {
+    python: new Set([
+        'False','None','True','and','as','assert','async','await',
+        'break','class','continue','def','del','elif','else',
+        'except','finally','for','from','global','if','import',
+        'in','is','lambda','nonlocal','not','or','pass','raise',
+        'return','self','try','while','with','yield',
+    ]),
+    javascript: new Set([
+        'async','await','break','case','catch','class','const',
+        'continue','default','delete','do','else','export','extends',
+        'false','finally','for','from','function','if','import',
+        'in','instanceof','let','new','null','of','return','static',
+        'super','switch','this','throw','true','try','typeof',
+        'undefined','var','void','while','yield',
+    ]),
+    typescript: new Set([
+        'abstract','any','as','async','await','boolean','break','case',
+        'catch','class','const','continue','declare','default','delete',
+        'do','else','enum','export','extends','false','finally','for',
+        'from','function','if','implements','import','in','infer',
+        'instanceof','interface','keyof','let','namespace','never','new',
+        'null','number','object','of','private','protected','public',
+        'readonly','return','satisfies','static','string','super',
+        'switch','this','throw','true','try','type','typeof',
+        'undefined','unknown','var','void','while',
+    ]),
+    sql: new Set([
+        'ALL','ALTER','AND','AS','ASC','AUTOINCREMENT','AVG','BEGIN',
+        'BETWEEN','BLOB','BY','CASCADE','CASE','CAST','COALESCE',
+        'COMMIT','CONFLICT','COUNT','CREATE','CROSS','DATE','DATETIME',
+        'DEFAULT','DELETE','DESC','DISTINCT','DO','DROP','ELSE','END',
+        'EXCEPT','EXISTS','FOREIGN','FROM','FULL','GROUP','GROUP_CONCAT',
+        'HAVING','IF','IGNORE','IN','INDEX','INNER','INSERT','INTEGER',
+        'INTO','IS','JOIN','JULIANDAY','KEY','LEFT','LIKE','LIMIT',
+        'LOWER','LTRIM','MAX','MIN','NOT','NULL','OF','OFFSET','ON',
+        'OR','ORDER','OUTER','OVER','PARTITION','PRAGMA','PRIMARY',
+        'PRINTF','REAL','RECURSIVE','REFERENCES','REPLACE','RESTRICT',
+        'RIGHT','ROLLBACK','ROW_NUMBER','RTRIM','SELECT','SET',
+        'STRFTIME','SUBSTR','SUM','TABLE','TEXT','THEN','TRANSACTION',
+        'TRIM','UNION','UNIQUE','UPDATE','UPPER','VALUES','VIEW',
+        'WHEN','WHERE','WITH',
+    ]),
+    html: new Set([]),
+    css:  new Set([
+        'absolute','auto','block','bold','center','contain','cover',
+        'fixed','flex','grid','hidden','inherit','initial','inline',
+        'italic','none','normal','nowrap','relative','solid',
+        'sticky','transparent','visible','wrap',
+    ]),
+};
+
+// ── 文字ごとのトークン種別を返す ──
+function tokenize(code, lang) {
+    const n = code.length;
+    const T = new Array(n).fill('');
+
+    function mark(a, b, t) { for (let k = a; k < b; k++) T[k] = t; }
+
+    let i = 0;
+    while (i < n) {
+        const s  = i;
+        const c0 = code[i];
+        const c1 = code[i + 1] ?? '';
+        const c2 = code[i + 2] ?? '';
+
+        // コメント
+        if (lang === 'python' && c0 === '#') {
+            while (i < n && code[i] !== '\n') i++;
+            mark(s, i, 'comment'); continue;
+        }
+        if ((lang === 'javascript' || lang === 'typescript') && c0 === '/' && c1 === '/') {
+            while (i < n && code[i] !== '\n') i++;
+            mark(s, i, 'comment'); continue;
+        }
+        if ((lang === 'javascript' || lang === 'typescript' || lang === 'css') && c0 === '/' && c1 === '*') {
+            i += 2;
+            while (i + 1 < n && !(code[i] === '*' && code[i + 1] === '/')) i++;
+            i = Math.min(i + 2, n);
+            mark(s, i, 'comment'); continue;
+        }
+        if (lang === 'sql' && c0 === '-' && c1 === '-') {
+            while (i < n && code[i] !== '\n') i++;
+            mark(s, i, 'comment'); continue;
+        }
+        if (lang === 'html' && c0 === '<' && c1 === '!' && c2 === '-') {
+            i += 4;
+            while (i + 2 < n && !(code[i] === '-' && code[i + 1] === '-' && code[i + 2] === '>')) i++;
+            i = Math.min(i + 3, n);
+            mark(s, i, 'comment'); continue;
+        }
+
+        // 文字列（Python：f/r/b/u プレフィックスと三重クォートに対応）
+        if (lang === 'python') {
+            let j = i;
+            while (j < n && 'fFrRbBuU'.includes(code[j])) j++;
+            if (j < n && (code[j] === '"' || code[j] === "'")) {
+                const q = code[j];
+                if (code[j + 1] === q && code[j + 2] === q) {
+                    i = j + 3;
+                    while (i + 2 < n && !(code[i] === q && code[i + 1] === q && code[i + 2] === q)) {
+                        if (code[i] === '\\') i++;
+                        i++;
+                    }
+                    i = Math.min(i + 3, n);
+                } else {
+                    i = j + 1;
+                    while (i < n && code[i] !== q && code[i] !== '\n') {
+                        if (code[i] === '\\') i++;
+                        i++;
+                    }
+                    if (i < n && code[i] === q) i++;
+                }
+                mark(s, i, 'string'); continue;
+            }
+        }
+
+        // 文字列（JS / TS：テンプレートリテラルを含む）
+        if ((lang === 'javascript' || lang === 'typescript') && (c0 === '"' || c0 === "'" || c0 === '`')) {
+            const q = c0; i++;
+            while (i < n && code[i] !== q) {
+                if (code[i] === '\\') i++;
+                i++;
+            }
+            if (i < n) i++;
+            mark(s, i, 'string'); continue;
+        }
+
+        // 文字列（SQL）
+        if (lang === 'sql' && c0 === "'") {
+            i++;
+            while (i < n && code[i] !== "'") {
+                if (code[i] === '\\') i++;
+                i++;
+            }
+            if (i < n) i++;
+            mark(s, i, 'string'); continue;
+        }
+
+        // 文字列（HTML / CSS）
+        if ((lang === 'html' || lang === 'css') && (c0 === '"' || c0 === "'")) {
+            const q = c0; i++;
+            while (i < n && code[i] !== q) i++;
+            if (i < n) i++;
+            mark(s, i, 'string'); continue;
+        }
+
+        // CSS の #hex カラー
+        if (lang === 'css' && c0 === '#' && /[0-9a-fA-F]/.test(c1)) {
+            i++;
+            while (i < n && /[0-9a-fA-F]/.test(code[i])) i++;
+            mark(s, i, 'number'); continue;
+        }
+
+        // 数値
+        if (/\d/.test(c0) && (i === 0 || !/[a-zA-Z_$]/.test(code[i - 1]))) {
+            while (i < n && /[\da-fA-FxXoObB._]/.test(code[i])) i++;
+            mark(s, i, 'number'); continue;
+        }
+
+        // デコレーター（Python / TypeScript）
+        if ((lang === 'python' || lang === 'typescript') && c0 === '@') {
+            i++;
+            while (i < n && /[a-zA-Z_0-9.]/.test(code[i])) i++;
+            mark(s, i, 'decorator'); continue;
+        }
+
+        // CSS @ルール
+        if (lang === 'css' && c0 === '@') {
+            i++;
+            while (i < n && /[a-zA-Z-]/.test(code[i])) i++;
+            mark(s, i, 'keyword'); continue;
+        }
+
+        // HTML タグ名（< または </）
+        if (lang === 'html' && c0 === '<') {
+            i++;
+            if (i < n && code[i] === '/') i++;
+            if (i < n && code[i] === '!') i++;
+            const ts = i;
+            while (i < n && /[a-zA-Z0-9]/.test(code[i])) i++;
+            if (i > ts) mark(s, i, 'keyword');
+            continue;
+        }
+
+        // キーワード・識別子
+        if (/[a-zA-Z_$]/.test(c0)) {
+            while (i < n && /[a-zA-Z_$0-9]/.test(code[i])) i++;
+            const word = code.slice(s, i);
+            const kw   = KW[lang];
+            const chk  = lang === 'sql' ? word.toUpperCase() : word;
+            if (kw && (kw.has(word) || kw.has(chk))) mark(s, i, 'keyword');
+            continue;
+        }
+
+        i++;
+    }
+
+    return T;
+}
+
 // ── ランダムにスニペットを1つ選ぶ ──
 function pickSnippet() {
     const pool  = SNIPPETS[currentLang];
@@ -195,11 +397,14 @@ function buildCode(snippet) {
     againBtn.classList.remove('show');
     nextBtn.classList.remove('show');
 
+    const tokenTypes = tokenize(snippet, currentLang);
+
     for (let i = 0; i < snippet.length; i++) {
         const ch   = snippet[i];
         const span = document.createElement('span');
         span.classList.add('c', i === 0 ? 'cur' : 'wait');
         if (ch === '\n') span.classList.add('nl');
+        if (tokenTypes[i]) span.classList.add('tok-' + tokenTypes[i]);
         span.textContent = ch;
         chars.push({ span, ch });
         codeText.appendChild(span);

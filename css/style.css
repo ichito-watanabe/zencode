@@ -5,10 +5,10 @@
 }
 
 body {
-    background:  #0c0c0c;
+    background:  #fafafa;
     font-family: 'JetBrains Mono', 'Fira Mono', 'Consolas', monospace;
     min-height:  100vh;
-    border-top:  2px solid #6b1a1a; /* 朱色の細いアクセントライン */
+    border-top:  2px solid #6b1a1a;
 }
 
 /* ── ページ遷移 ── */
@@ -30,7 +30,7 @@ body {
 .home-subtitle {
     font-size:      11px;
     letter-spacing: 0.5em;
-    color:          #8b3030; /* 朱色 */
+    color:          #8b3030;
     margin-bottom:  28px;
     font-weight:    300;
 }
@@ -39,14 +39,14 @@ body {
     font-size:      30px;
     font-weight:    300;
     letter-spacing: 0.35em;
-    color:          #8a8a8a;
+    color:          #444;
     margin-bottom:  10px;
 }
 
 .home-desc {
     font-size:      11px;
     letter-spacing: 0.3em;
-    color:          #4a4a4a;
+    color:          #999;
     margin-bottom:  72px;
 }
 
@@ -61,8 +61,8 @@ body {
 
 .lang-card {
     background:     none;
-    border:         1px solid #242424;
-    color:          #707070;
+    border:         1px solid #e0e0e0;
+    color:          #888;
     padding:        30px 16px;
     border-radius:  1px;
     cursor:         pointer;
@@ -75,9 +75,9 @@ body {
 }
 
 .lang-card:hover {
-    border-color: #3a3a3a;
-    background:   #111;
-    color:        #b0b0b0;
+    border-color: #bbb;
+    background:   #f2f2f2;
+    color:        #333;
 }
 
 .lang-en {
@@ -88,12 +88,12 @@ body {
 .lang-ja {
     font-size:      20px;
     letter-spacing: 0.2em;
-    color:          #5a5a5a;
+    color:          #ccc;
     transition:     color 0.2s;
 }
 
 .lang-card:hover .lang-ja {
-    color: #8b3030; /* ホバー時に朱色で漢字が浮かぶ */
+    color: #8b3030;
 }
 
 /* ── ヘッダー（タイピング画面） ── */
@@ -102,13 +102,13 @@ body {
     align-items:     center;
     justify-content: space-between;
     padding:         20px 48px;
-    border-bottom:   1px solid #141414;
+    border-bottom:   1px solid #ebebeb;
 }
 
 .back-btn {
     background:     none;
     border:         none;
-    color:          #282828;
+    color:          #ccc;
     font:           inherit;
     font-size:      12px;
     letter-spacing: 0.08em;
@@ -118,19 +118,19 @@ body {
     min-width:      80px;
 }
 
-.back-btn:hover { color: #555; }
+.back-btn:hover { color: #666; }
 
 .logo {
     font-size:      13px;
     font-weight:    300;
     letter-spacing: 0.35em;
-    color:          #1e1e1e;
+    color:          #ccc;
 }
 
 .current-lang {
     font-size:      12px;
     letter-spacing: 0.1em;
-    color:          #282828;
+    color:          #ccc;
     text-align:     right;
     min-width:      80px;
 }
@@ -138,7 +138,7 @@ body {
 .current-lang .lang-kanji {
     display:        block;
     font-size:      13px;
-    color:          #6b1a1a; /* 朱色で漢字 */
+    color:          #6b1a1a;
     letter-spacing: 0.25em;
     margin-top:     3px;
 }
@@ -161,7 +161,7 @@ body {
 
 .code-wrap::-webkit-scrollbar       { width: 3px; }
 .code-wrap::-webkit-scrollbar-track { background: transparent; }
-.code-wrap::-webkit-scrollbar-thumb { background: #1e1e1e; border-radius: 2px; }
+.code-wrap::-webkit-scrollbar-thumb { background: #ddd; border-radius: 2px; }
 
 .code-wrap:not(.focused) .code-text { opacity: 0.4; }
 
@@ -173,7 +173,7 @@ body {
     justify-content: center;
     font-size:       12px;
     letter-spacing:  0.2em;
-    color:           #1c1c1c;
+    color:           #bbb;
     pointer-events:  none;
     transition:      opacity 0.3s;
 }
@@ -189,26 +189,49 @@ body {
 
 /* ── 文字の状態 ── */
 
-/* 未入力：ほぼ見えない暗さ */
-.c.wait { color: #1e1e1e; }
+/* 未入力：薄いグレー */
+.c.wait { color: #cccccc; }
 
-/* 入力済み：明るい白で達成感を示す */
-.c.done { color: #c8c8c8; }
+/* 入力済み：濃い黒 */
+.c.done { color: #1a1a1a; }
 
-/* ミスタイプ：落ち着いた赤で静かに警告 */
-.c.bad  { color: #7a3030; background: rgba(100, 30, 30, 0.12); border-radius: 2px; }
+/* ミスタイプ */
+.c.bad  { color: #c0392b; background: rgba(192, 57, 43, 0.08); border-radius: 2px; }
 
-/* カーソル位置：下線で現在地を示す */
+/* カーソル位置 */
 .c.cur:not(.nl) {
-    color:         #555;
-    border-bottom: 1px solid #5a5a5a;
+    color:         #999;
+    border-bottom: 1px solid #aaa;
 }
 
 /* 改行記号（↵）の表示 */
-.c.nl::before       { content: '↵'; font-size: 0.65em; opacity: 0.12; }
-.c.nl.done::before  { opacity: 0.3; color: #888; }
-.c.nl.cur::before   { opacity: 0.6; color: #6a6a6a; }
-.c.nl.bad::before   { opacity: 0.7; color: #7a3030; }
+.c.nl::before       { content: '↵'; font-size: 0.65em; opacity: 0.2; }
+.c.nl.done::before  { opacity: 0.4; color: #999; }
+.c.nl.cur::before   { opacity: 0.7; color: #aaa; }
+.c.nl.bad::before   { opacity: 0.8; color: #c0392b; }
+
+/* ── シンタックスハイライト ── */
+
+/* 入力待ち：ほのかな色味のみ */
+.c.wait.tok-keyword   { color: #ccd8f0; }
+.c.wait.tok-string    { color: #f0d0cc; }
+.c.wait.tok-comment   { color: #cce8cc; }
+.c.wait.tok-number    { color: #cce8e0; }
+.c.wait.tok-decorator { color: #ead0f0; }
+
+/* 入力済み：VS Code Light スタイル */
+.c.done.tok-keyword   { color: #0070c1; }
+.c.done.tok-string    { color: #a31515; }
+.c.done.tok-comment   { color: #357a35; }
+.c.done.tok-number    { color: #098658; }
+.c.done.tok-decorator { color: #af00db; }
+
+/* カーソル位置：トークン色の中間調 */
+.c.cur.tok-keyword:not(.nl)   { color: #7ab0e0; border-bottom-color: #7ab0e0; }
+.c.cur.tok-string:not(.nl)    { color: #d08080; border-bottom-color: #d08080; }
+.c.cur.tok-comment:not(.nl)   { color: #70aa70; border-bottom-color: #70aa70; }
+.c.cur.tok-number:not(.nl)    { color: #60aa90; border-bottom-color: #60aa90; }
+.c.cur.tok-decorator:not(.nl) { color: #c070d0; border-bottom-color: #c070d0; }
 
 /* ── 進捗バー ── */
 .footer {
@@ -218,11 +241,11 @@ body {
     gap:         20px;
 }
 
-.track { flex: 1; height: 1px; background: #141414; }
+.track { flex: 1; height: 1px; background: #e8e8e8; }
 
 .fill {
     height:     100%;
-    background: #2e2e2e;
+    background: #bbb;
     width:      0%;
     transition: width 0.3s ease;
 }
@@ -230,7 +253,7 @@ body {
 .counter {
     font-size:      11px;
     letter-spacing: 0.08em;
-    color:          #1e1e1e;
+    color:          #ccc;
     min-width:      80px;
     text-align:     right;
 }
@@ -240,7 +263,7 @@ body {
     margin-top:     40px;
     font-size:      13px;
     letter-spacing: 0.25em;
-    color:          #2e3e2e;
+    color:          #5a8a5a;
     display:        none;
 }
 
@@ -256,8 +279,8 @@ body {
 .action-btn {
     display:        none;
     background:     none;
-    border:         1px solid #181818;
-    color:          #1e1e1e;
+    border:         1px solid #e0e0e0;
+    color:          #aaa;
     padding:        7px 18px;
     border-radius:  1px;
     cursor:         pointer;
@@ -268,7 +291,7 @@ body {
 }
 
 .action-btn.show  { display: inline-block; }
-.action-btn:hover { color: #444; border-color: #2a2a2a; }
+.action-btn:hover { color: #333; border-color: #999; }
 
 /* ── レスポンシブ ── */
 @media (max-width: 600px) {
